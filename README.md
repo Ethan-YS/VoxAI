@@ -87,6 +87,38 @@ The MCP server exposes TTS as a tool. Your AI calls `speak(text)` and VoxAI hand
 
 ---
 
+## Usage
+
+### Basic workflow
+
+1. **Launch VoxAI** — the app lives in your menubar
+2. **Open Dialog mode** — a floating window appears, stays on top of everything
+3. **Speak** — transcription appears in real time; copy the text to your AI tool (Claude Code, terminal, chat interface)
+4. **AI responds** — if the MCP server is connected, the AI calls `speak(text)` and VoxAI reads the response aloud automatically
+
+That's the full loop: your voice in, AI voice out.
+
+### First-time setup
+
+```
+menubar icon → 偏好设置 / Preferences
+```
+
+- **Recognition language**: set to Auto, Chinese, or English
+- **TTS engine**: Cloud (edge-tts, needs internet) or Local (Qwen3-TTS, fully offline)
+- **Voice**: pick from available voices for your chosen engine
+- **HuggingFace Token**: paste your token to enable speaker diarization in meeting mode (free at huggingface.co)
+
+### Meeting mode
+
+1. Click **会议记录 / Meeting Notes** in the menubar
+2. Press **+** to start a new recording
+3. Speak — transcription segments appear in real time
+4. Click **完成 / Done** when finished — whisperx runs offline and labels each speaker
+5. Click any speaker name to rename it; the rename applies to all their segments
+
+---
+
 ## How the MCP integration works
 
 ```
