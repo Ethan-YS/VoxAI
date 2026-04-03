@@ -1,0 +1,10 @@
+{
+  "cn_engine": "cloud",
+  "cn_voice": "xiaoxiao",
+  "en_voice": "default",
+  "speed": 1.0,
+  "language": "auto",
+  "hf_token": "YOUR_HUGGINGFACE_TOKEN_HERE",
+  "silence_duration": 1.5,
+  "recognition_language": "auto"
+}

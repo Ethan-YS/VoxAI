@@ -1,0 +1,78 @@
+// MARK: - Menu Bar
+"VoxAI Ready" = "VoxAI 就绪";
+"Recording…" = "录音中…";
+"Open Dialog Window" = "打开对话窗口";
+"Meeting Notes" = "会议记录";
+"Recent Meetings" = "最近会议";
+"Quit VoxAI" = "退出 VoxAI";
+
+// MARK: - Dialog
+"Switch to Dialog Mode" = "切换到对话模式";
+"Close" = "关闭";
+"Settings" = "设置";
+"Listening…" = "正在聆听…";
+"Press button to start speaking" = "按下按钮开始说话";
+"Meeting Mode" = "会议模式";
+"Paused" = "已暂停";
+"Record in meeting window" = "在会议窗口中录制";
+
+// MARK: - Content
+"Dialog Transcription" = "对话转录";
+"Preferences" = "偏好设置";
+"All Recordings" = "所有录音";
+"New Recording" = "新建录音";
+"Recording in progress" = "录音进行中，无法新建";
+"Search" = "搜索";
+"Rename" = "重命名";
+"Delete" = "删除";
+"Meeting Name" = "会议名称";
+"Double-click to rename" = "双击重命名";
+"Done" = "完成";
+"End meeting and identify speakers" = "结束会议并识别说话人";
+"Start Recording" = "开始录音";
+"Re-identify Speakers" = "重新识别说话人";
+"Export" = "导出";
+"Copy to AI for summary" = "复制给 AI 生成摘要";
+"Delete Recording" = "删除录音";
+"Recording" = "录制中";
+"Paused, tap to resume" = "已暂停，点击继续";
+"Resume Recording" = "继续录音";
+"Pause Recording" = "暂停录音";
+"Identifying speakers…" = "正在识别说话人…（受限于本地 CPU 性能，短录音约 2-5 分钟，长录音可能需要 30 分钟以上，这是正常现象）";
+"Dismiss" = "关闭";
+"Recording, waiting for speech…" = "正在录音，等待语音…";
+"Select a recording or create new" = "选择一个录音或新建";
+"Speaker Name" = "说话人名称";
+"No content..." = "无内容...";
+
+// MARK: - Settings
+"Speech Input & Recognition" = "语音输入与识别";
+"Recognition Language" = "识别语言";
+"Auto Detect" = "自动检测";
+"Chinese" = "中文";
+"English" = "英文";
+"Silence Detection Duration" = "停顿检测时长";
+"Auto-submit after this pause duration" = "停顿多久后自动提交当前句子";
+"0.5s" = "0.5 秒";
+"1.0s" = "1.0 秒";
+"1.5s (Recommended)" = "1.5 秒（推荐）";
+"2.0s" = "2.0 秒";
+"Voice Output (TTS)" = "语音输出（TTS）";
+"Chinese Engine" = "中文引擎";
+"Cloud is better quality, local works offline" = "云端音质更好，本地无需联网";
+"Cloud (edge-tts)" = "云端（edge-tts）";
+"Local (Qwen3-TTS)" = "本地（Qwen3-TTS）";
+"Chinese Voice" = "中文声音";
+"Vivian (Female)" = "Vivian（女声）";
+"Dylan (Male)" = "Dylan（男声）";
+"Xiaoxiao (Female)" = "小晓（女）";
+"Yunxi (Male)" = "云希（男）";
+"Xiaoyi (Female·Lively)" = "晓伊（女·活泼）";
+"Speech Rate" = "语速调节";
+"Preview Voice" = "试听声音";
+"Generating…" = "生成中…";
+"Playing…" = "播放中…";
+"Speaker Identification (Meeting Mode)" = "说话人识别（会议模式）";
+"For downloading speaker ID model (free signup)" = "用于下载说话人识别模型（免费注册）";
+"No token configured, speaker ID will be skipped" = "未配置 Token，会议结束后将跳过说话人识别";
+"Token configured, model downloads on first use (~1.5 GB)" = "Token 已配置，首次识别时会自动下载模型（约 1.5 GB）";

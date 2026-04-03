@@ -1,0 +1,244 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A001 /* VoxSageApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B001 /* VoxSageApp.swift */; };
+		A002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B002 /* ContentView.swift */; };
+		A003 /* DialogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B003 /* DialogView.swift */; };
+		A004 /* MeetingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B004 /* MeetingView.swift */; };
+		A005 /* TranscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B005 /* TranscriptionService.swift */; };
+		A006 /* MeetingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B006 /* MeetingStore.swift */; };
+		A007 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B007 /* Assets.xcassets */; };
+		A008 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B008 /* SettingsView.swift */; };
+		A009 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = VGRP001 /* Localizable.strings */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		B001 /* VoxSageApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoxSageApp.swift; sourceTree = "<group>"; };
+		B002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		B003 /* DialogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DialogView.swift; path = Views/DialogView.swift; sourceTree = "<group>"; };
+		B004 /* MeetingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MeetingView.swift; path = Views/MeetingView.swift; sourceTree = "<group>"; };
+		B005 /* TranscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TranscriptionService.swift; path = Services/TranscriptionService.swift; sourceTree = "<group>"; };
+		B006 /* MeetingStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MeetingStore.swift; path = Models/MeetingStore.swift; sourceTree = "<group>"; };
+		B007 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B008 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsView.swift; path = Views/SettingsView.swift; sourceTree = "<group>"; };
+		B009 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		C001 /* VoxAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VoxAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		MAINGROUP = {
+			isa = PBXGroup;
+			children = (
+				SRCGROUP /* VoxSage */,
+				PRODGROUP /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		PRODGROUP /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C001 /* VoxAI.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		SRCGROUP /* VoxSage */ = {
+			isa = PBXGroup;
+			children = (
+				B001 /* VoxSageApp.swift */,
+				B002 /* ContentView.swift */,
+				B003 /* DialogView.swift */,
+				B004 /* MeetingView.swift */,
+				B005 /* TranscriptionService.swift */,
+				B006 /* MeetingStore.swift */,
+				B007 /* Assets.xcassets */,
+				B008 /* SettingsView.swift */,
+				VGRP001 /* Localizable.strings */,
+			);
+			path = VoxSage;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		TARGET1 /* VoxAI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BUILDCFG1 /* Build configuration list for PBXNativeTarget "VoxAI" */;
+			buildPhases = (
+				SRCPHASE1 /* Sources */,
+				RESPHASE1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VoxAI;
+			productName = VoxAI;
+			productReference = C001 /* VoxAI.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		PROJECT1 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				TargetAttributes = {
+					TARGET1 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = PROJCFG1 /* Build configuration list for PBXProject "VoxSage" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+				"zh-Hans",
+			);
+			mainGroup = MAINGROUP;
+			productRefGroup = PRODGROUP /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				TARGET1 /* VoxAI */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		RESPHASE1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A007 /* Assets.xcassets in Resources */,
+				A009 /* Localizable.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		SRCPHASE1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A001 /* VoxSageApp.swift in Sources */,
+				A002 /* ContentView.swift in Sources */,
+				A003 /* DialogView.swift in Sources */,
+				A004 /* MeetingView.swift in Sources */,
+				A005 /* TranscriptionService.swift in Sources */,
+				A006 /* MeetingStore.swift in Sources */,
+				A008 /* SettingsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		VGRP001 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B009 /* zh-Hans */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		DBG1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "VoxAI 需要麦克风权限来录制语音";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "VoxAI 需要语音识别权限来转录内容";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.4.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sprout.voxai;
+				PRODUCT_NAME = VoxAI;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		PROJDBG1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+			};
+			name = Debug;
+		};
+		PROJREL1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+			};
+			name = Release;
+		};
+		REL1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "VoxAI 需要麦克风权限来录制语音";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "VoxAI 需要语音识别权限来转录内容";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.4.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sprout.voxai;
+				PRODUCT_NAME = VoxAI;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		BUILDCFG1 /* Build configuration list for PBXNativeTarget "VoxAI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DBG1 /* Debug */,
+				REL1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		PROJCFG1 /* Build configuration list for PBXProject "VoxSage" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				PROJDBG1 /* Debug */,
+				PROJREL1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = PROJECT1 /* Project object */;
+}
