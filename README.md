@@ -8,6 +8,39 @@
 
 ---
 
+## Screenshots
+
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <img src="docs/screenshots/dialog-idle.png" width="360" alt="Dialog mode — idle"/><br/>
+      <sub>Dialog mode — idle</sub>
+    </td>
+    <td align="center" width="50%">
+      <img src="docs/screenshots/dialog-recording.png" width="360" alt="Dialog mode — recording"/><br/>
+      <sub>Dialog mode — recording</sub>
+    </td>
+  </tr>
+</table>
+
+<img src="docs/screenshots/meeting-mode.png" width="780" alt="Meeting mode with speaker diarization"/>
+<sub>Meeting mode — multi-speaker transcription with speaker labels</sub>
+
+<table>
+  <tr>
+    <td align="center" width="35%">
+      <img src="docs/screenshots/menubar.png" width="240" alt="Menu bar"/><br/>
+      <sub>Menu bar</sub>
+    </td>
+    <td align="center" width="65%">
+      <img src="docs/screenshots/settings.png" width="480" alt="Settings"/><br/>
+      <sub>Settings — language, TTS engine, speaker diarization</sub>
+    </td>
+  </tr>
+</table>
+
+---
+
 ## What it does
 
 VoxAI is a native macOS menubar app with two modes:
