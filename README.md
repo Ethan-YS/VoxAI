@@ -70,7 +70,7 @@ Both modes are accessible from the menubar and switch seamlessly without restart
 ### Quick start
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/VoxAI.git
+git clone https://github.com/Ethan-YS/VoxAI.git
 cd VoxAI
 
 # Set up Python backend

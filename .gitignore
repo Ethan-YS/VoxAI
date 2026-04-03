@@ -6,7 +6,7 @@ config.json
 # Python 虚拟环境（用户自行安装）
 venv/
 # 本地模型文件（运行时自动下载）
-models/
+/models/
 
 # ── Xcode 构建产物 ────────────────────────────────────────
 VoxSage-App/DerivedData/
