@@ -1,10 +1,25 @@
 # VoxAI
 
-> Real-time voice transcription and meeting recorder for macOS — built with Swift, SwiftUI, and a local AI backend.
+> Give your AI a voice. Talk to Claude Code, local models, and CLI tools — and have them talk back.
 
 ![Platform](https://img.shields.io/badge/platform-macOS%2014%2B-blue)
 ![Swift](https://img.shields.io/badge/Swift-5.9-orange)
 ![License](https://img.shields.io/badge/license-MIT-green)
+
+---
+
+## The core idea
+
+Most AI coding tools are text-only. You type, they type back.
+
+VoxAI adds the missing voice layer — on **both sides**:
+
+- **Input**: speak naturally, get real-time transcription
+- **Output**: AI responses read aloud through a customizable voice, powered by an MCP server
+
+Connect it to Claude Code, a local model, or any MCP-compatible tool, and you get a complete voice interface for AI-assisted development. **Code with your voice.**
+
+The MCP server exposes TTS as a tool. Your AI calls `speak(text)` and VoxAI handles the rest — no audio pipeline plumbing needed on the AI side.
 
 ---
 
@@ -34,35 +49,66 @@
     </td>
     <td align="center" width="65%">
       <img src="docs/screenshots/settings.png" width="480" alt="Settings"/><br/>
-      <sub>Settings — language, TTS engine, speaker diarization</sub>
+      <sub>Settings — voice engine, speaker diarization</sub>
     </td>
   </tr>
 </table>
 
 ---
 
-## What it does
+## Features
 
-VoxAI is a native macOS menubar app with two modes:
+### 🎙️ Voice output for AI — via MCP
+- Expose TTS as an MCP tool: any AI that supports MCP can call `speak(text)` to produce voice output
+- Works with **Claude Code**, local models (Ollama, LM Studio), and any MCP-compatible CLI tool
+- **Cloud engine**: `edge-tts` — high-quality Microsoft neural voices, no API key needed
+- **Local engine**: `Qwen3-TTS` via `mlx-audio` — runs fully offline on Apple Silicon
+- Customizable voice, language, and speech rate per session
+- `stop_speaking` tool lets the AI interrupt itself mid-sentence
 
-**Dialog Mode** — a floating overlay window that stays on top of any app. Start speaking and watch your words appear in real time with automatic punctuation. Useful during calls, while coding, or whenever you need hands-free transcription.
+### 🗣️ Real-time voice input
+- Floating overlay window stays on top of any app — speak, see text, keep working
+- Powered by `SFSpeechRecognizer` + `AVAudioEngine` with automatic session restart at the 60s system limit
+- Lyrics-style display: completed segments fade; the active segment stays bright
+- Auto-punctuation on macOS 13+
 
-**Meeting Mode** — a full-window recorder that captures multi-person conversations. After recording, it runs offline speaker diarization (whisperx) to label each speaker's lines. Results are editable and exportable as Markdown.
+### 📋 Meeting recorder with speaker diarization
+- Full-window recording mode for multi-person sessions
+- After recording, [whisperx](https://github.com/m-bain/whisperX) identifies and labels each speaker's lines
+- Inline speaker renaming — click a label to rename; propagates across all segments
+- Export as Markdown, or send directly to an AI for summarization
 
-Both modes are accessible from the menubar and switch seamlessly without restarting any processes.
+### ⚙️ Settings
+- Switch between cloud and local TTS engine without restarting
+- Per-language voice selection (separate Chinese / English voices)
+- Silence detection threshold: 0.5s – 2.0s
+- HuggingFace token for speaker diarization (optional)
+- UI language follows macOS system setting (Chinese / English)
 
 ---
 
-## Features
+## How the MCP integration works
 
-- **Real-time transcription** via Apple's `SFSpeechRecognizer` with auto-restart at the 60s system limit
-- **Speaker diarization** with [whisperx](https://github.com/m-bain/whisperX) — identifies and labels each speaker post-recording
-- **TTS output** via MCP — choose between cloud (`edge-tts`) or fully local (`Qwen3-TTS` on Apple Silicon via `mlx-audio`)
-- **Lyrics-style display** — completed segments fade gently; the active segment stays bright
-- **Silence-based auto-segmentation** — configurable pause threshold (0.5–2.0s) for meeting mode
-- **Inline speaker renaming** — click any speaker label to rename; renames propagate across all segments
-- **System language switching** — Chinese/English UI follows macOS language settings
-- **MCP server** — exposes `list_meetings` and `get_meeting` tools so AI assistants can read your transcripts directly
+```
+You speak
+  → VoxAI transcribes in real time
+  → text goes to your AI tool (Claude Code, CLI, etc.)
+  → AI processes and calls speak(text) via MCP
+  → VoxAI reads the response aloud
+```
+
+The MCP server runs locally alongside the app. Configure your AI tool to connect to it, and voice I/O is handled automatically.
+
+Available MCP tools:
+
+| Tool | Description |
+|---|---|
+| `speak(text, voice?, speed?)` | Speak text aloud with optional voice/speed override |
+| `stop_speaking()` | Interrupt current playback |
+| `list_voices()` | List available voices for current engine |
+| `update_voice_config(...)` | Change engine, voice, or speed at runtime |
+| `list_meetings()` | List all recorded meetings with metadata |
+| `get_meeting(id)` | Get full transcript for a meeting |
 
 ---
 
@@ -113,13 +159,28 @@ pip install whisperx mlx-audio edge-tts
 
 # Configure
 cp config.example.json config.json
-# Edit config.json — add your HuggingFace token for speaker diarization
+# Edit config.json — add your HuggingFace token for speaker diarization (optional)
 
 # Build and run the app
 open VoxSage-App/VoxSage.xcodeproj
 ```
 
 Grant microphone and speech recognition permissions when prompted.
+
+### Connect to Claude Code
+
+Add to your Claude Code MCP config:
+
+```json
+{
+  "mcpServers": {
+    "voxai": {
+      "command": "/path/to/VoxAI/venv/bin/python3",
+      "args": ["/path/to/VoxAI/src/mcp/server.py"]
+    }
+  }
+}
+```
 
 ### config.json options
 
@@ -136,8 +197,6 @@ Grant microphone and speech recognition permissions when prompted.
 }
 ```
 
-A HuggingFace token is only required for speaker diarization. The app works without one — diarization will be skipped.
-
 ---
 
 ## Download
@@ -150,22 +209,22 @@ Pre-built `.dmg` for Apple Silicon is available on the [Releases](../../releases
 
 ```
 VoxSage-App/VoxSage/
-├── VoxSageApp.swift          # Entry point — 3 scenes: dialog / meeting / menubar
-├── ContentView.swift         # Meeting window — 3-panel layout
+├── VoxSageApp.swift              # Entry point — 3 scenes: dialog / meeting / menubar
+├── ContentView.swift             # Meeting window — 3-panel layout
 ├── Views/
-│   ├── DialogView.swift      # Floating overlay + lyrics view
-│   ├── MeetingView.swift     # Menubar dropdown
-│   └── SettingsView.swift    # Settings panel
+│   ├── DialogView.swift          # Floating overlay + lyrics view
+│   ├── MeetingView.swift         # Menubar dropdown
+│   └── SettingsView.swift        # Settings panel
 ├── Services/
 │   └── TranscriptionService.swift  # Audio engine, ASR session management
 ├── Models/
-│   └── MeetingStore.swift    # Meeting persistence + diarization orchestration
+│   └── MeetingStore.swift        # Meeting persistence + diarization orchestration
 └── zh-Hans.lproj/
-    └── Localizable.strings   # Chinese localization
+    └── Localizable.strings       # Chinese localization
 
 src/
-├── mcp/server.py             # MCP server (TTS tools + meeting data access)
-└── stt/diarize.py            # whisperx diarization script
+├── mcp/server.py                 # MCP server — TTS tools + meeting data access
+└── stt/diarize.py                # whisperx diarization script
 ```
 
 ---
