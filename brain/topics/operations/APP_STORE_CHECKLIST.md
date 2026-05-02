@@ -9,9 +9,9 @@
 
 ## 一、账号 / 法务
 
-- [x] Apple Developer Program 账号（Rebecca 已确认有）
-- [ ] App Store Connect 创建 app record
-- [x] Bundle ID = `com.ethanys.voxai`（DECISIONS DR-010）
+- [x] Apple Developer Program 账号（Rebecca 已确认有，Team ID `YNMBJ5H736`）
+- [ ] App Store Connect 创建 app record（Phase 4 提审前）
+- [x] Bundle ID = `com.ethanys.voxai`（DECISIONS DR-010）—— 2026-05-02 已在 Apple Developer Portal Identifiers 注册锁定
 - [ ] 隐私政策网页（GitHub Pages 仓库下 `docs/privacy.html`）
 - [ ] 软件许可协议（用 Apple 默认 EULA）
 - [ ] 第三方依赖许可证审计 → 详见 `LICENSE_AUDIT.md`

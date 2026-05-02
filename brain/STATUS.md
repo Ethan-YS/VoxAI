@@ -19,16 +19,16 @@
 
 1. Xcode 工程：macOS 13+ deployment target、`ARCHS = $(ARCHS_STANDARD)`、Sandbox 开启
 2. **工程创建后立即 archive 一次**验证 universal binary 双 slice（防 Xcode 16.x bug）
-3. Bundle ID `com.ethanys.voxai` —— 顺便建议 Rebecca 在 App Store Connect 抢注锁定（避免后续被占要全文档 rename）
+3. Bundle ID `com.ethanys.voxai`（已在 Apple Developer Portal 锁定，Team YNMBJ5H736）
 4. entitlements: `app-sandbox` + `device.audio-input` + `network.client` + `network.server`
 5. Info.plist：`NSMicrophoneUsageDescription` + `NSSpeechRecognitionUsageDescription`（中英两版）
-6. 项目根加 `LICENSE` 文件（MIT 全文）
+6. ~~项目根加 `LICENSE` 文件（MIT 全文）~~ ✅ 已完成（2026-05-02）
 
 完整 Phase 1 任务表见 `topics/planning/ROADMAP.md` Phase 1 节。
 
 ## 卡点 / 待确认
 
-- 🟡 Bundle ID `com.ethanys.voxai` 在 App Store Connect 是否被占——Rebecca 方便时可去 ASC 锁定
+- ✅ ~~Bundle ID `com.ethanys.voxai` 锁定~~ — 2026-05-02 已在 Apple Developer Portal Identifiers 注册成功（Team ID YNMBJ5H736）
 - 🟡 Phase 0.4 Universal Binary 在 SPM 路径已通过，**Xcode project 路径仍未验证**——Phase 1.1 创建工程后立即 archive 验
 - 🟡 Phase 1.5 SystemTTSEngine 完成后，需要 Rebecca 试听 5-10 段典型 AI 输出（中英混杂、技术术语）判断 v1 中文音质是否"够用"——这是非阻塞但影响 v1 体验的产品验收
 
