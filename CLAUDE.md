@@ -4,6 +4,26 @@
 
 ---
 
+## 🧠 接续协议（新会话醒来先做这件事）
+
+这个项目用 `project_brain` v2 方法论组织。新会话醒来按顺序读：
+
+1. **`brain/MAP.md`** — 项目地图，知道当前有哪些模块、文档分布
+2. **`brain/STATUS.md`** — 当下停在哪、下一步、卡点
+3. 如果存在 **`brain/HANDOFF.md`** —— 上一个 Sage 切窗口前留下的最新交接，必读
+4. 然后按需读：
+   - 范围模糊 / 首次接触 → `brain/PROJECT.md`
+   - 想知道某个决策为什么 → `brain/DECISIONS.md`
+   - 动具体模块前 → `brain/topics/systems/*`
+   - 提审 / 法务相关 → `brain/topics/operations/*`
+   - 看路线图 → `brain/topics/planning/ROADMAP.md`
+
+**不要静默动手**——读完 MAP + STATUS 后简短报告："我看到这是 VoxAI，当前停在 [STATUS 第一节]，下一步是 [STATUS 第二节]。要继续吗？"
+
+**项目根的 PLAN.md / ROADMAP.md 现在只是短索引**，内容已拆进 brain/。不要往 PLAN/ROADMAP 里写新内容——要写进对应的 brain/topics/ 文件。
+
+---
+
 ## ⚠️ 在你做任何事之前，先读完这一节
 
 ### Rebecca 是产品创造者，不是工程师
@@ -39,8 +59,8 @@
 
 ## 进来先做什么
 
-1. **读 [PLAN.md](./PLAN.md)** —— 完整产品规格、技术架构、决策记录、开发路线图
-2. 检查 PLAN 是否和这份 CLAUDE.md 冲突——本文件优先级更高，因为它沉淀了对话里建立的默契
+1. **走"接续协议"那一节**——读 brain/MAP + brain/STATUS（+ HANDOFF 如果有），不是直接读 PLAN/ROADMAP
+2. 如果 brain/ 和 CLAUDE.md 冲突：**CLAUDE.md 优先级更高**——它沉淀了对话里建立的默契和项目特有规则
 3. 动手前先评估：这件事是产品决策（问她）还是技术决策（自己做）？默认后者
 4. 不要动旧仓库 VoxSage
 

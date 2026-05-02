@@ -1,0 +1,7 @@
+# 历史 HANDOFF 归档
+
+每次 Rebecca 说要切窗口、Sage 写新的 `HANDOFF.md` 之前，先把上一份 `HANDOFF.md` 移动到这个目录，按 `YYYY-MM-DD-HHMM.md` 命名。
+
+主文件 `brain/HANDOFF.md` 永远是当前最新一份；这里留下的是历史链——方便回溯"上次窗口切换时项目在哪一步"。
+
+如果项目刚 kick off 还没切过窗口，本目录是空的。
