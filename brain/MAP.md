@@ -137,7 +137,7 @@ VoxAIApp ──→ 启动时初始化 MCPServer + AppSettings
 | `PLAN.md` | 短索引 | 历史保留；内容已拆进 brain/，本文件只保留指向 brain/ 的导航 |
 | `ROADMAP.md` | 短索引 | 同上，指向 `brain/topics/planning/ROADMAP.md` |
 | `.references/swift-sdk/` | Phase 0 验证产物 | 本地 clone 的 MCP SDK，验证用，不进 build；`.gitignore` 已排除 |
-| `LICENSE` | 待建 | Phase 1 创建时加 MIT 全文（DECISIONS DR-013） |
+| `LICENSE` | ✅ 已建 | MIT 全文（2026-05-02 创建，DR-013/DR-017） |
 | `README.md` | 待建 | Phase 4.6 创建用户文档 |
 | `VoxAI.xcodeproj/` | 待建 | Phase 1.1 创建 |
 | `VoxAI/` | 待建 | Phase 1.1 创建（App 源码） |

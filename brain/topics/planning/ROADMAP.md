@@ -54,7 +54,7 @@
 | 1.3 | Info.plist：`NSMicrophoneUsageDescription` + `NSSpeechRecognitionUsageDescription`（中英两版） |
 | 1.4 | `AppSettings`（UserDefaults `@AppStorage` 包装） |
 | 1.5 | `TranscriptionService`——**重写**（参考旧版 `sessionGeneration` / 60s 续接的设计，但去掉所有会议模式痕迹、`findProjectRoot`、spawn Process） |
-| 1.6 | `DialogView`——**重写**（参考旧版歌词渲染 + 控制条 + 浮窗设置，去掉 `isDialogMode` 双路、`MeetingModeContent`、`openWindow("meeting")`） |
+| 1.6 | `DialogView`——**重写**（参考旧版歌词渲染 + 控制条 + 浮窗设置，去掉 `isDialogMode` 双路、`MeetingModeContent`、`openWindow("meeting")`）。**v1 必含**：录音停止后自动复制到剪贴板（DR-020），Settings 给关闭开关；保留手动复制按钮作 fallback |
 | 1.7 | `VoxAIApp.swift`：3 Scenes（`dialog` WindowGroup / `settings` Window / `MenuBarExtra`），启动自动 open dialog |
 
 ### DoD
@@ -142,7 +142,7 @@
 | 4.1 | App Icon（1024×1024 + 各 size） | 沿用 VoxSage 的 sparkles + 蓝紫渐变 |
 | 4.2 | App Store 截图（13" + 16" 各一组，至少 3 张：Dialog 待机 / 录音中 / Settings） | 在 Apple Silicon 拍 |
 | 4.3 | 应用描述（中英）、关键词、类别（Developer Tools 主 / Productivity 副） | |
-| 4.4 | 隐私政策网页（GitHub Pages，仓库下 `docs/privacy.html`） | 必写：麦克风用途、ASR 不上传、用户配的 Cloud TTS 由用户自负责 |
+| 4.4 | 隐私政策网页（GitHub Pages，仓库下 `docs/privacy.html`） | 必写：VoxAI 本身不收集；ASR 由 Apple SFSpeechRecognizer 处理（可能经 Apple 服务器，DR-018）；自动复制到剪贴板（DR-020）；用户配的 Cloud TTS 由用户自负责。详见 `topics/operations/APP_STORE_CHECKLIST.md` §五 |
 | 4.5 | App Store Connect 创建 record，archive → upload → 提审 | |
 | 4.6 | README.md 用户文档 | 替换 Phase 0 时存在的临时占位 |
 | 4.7 | App Review Notes：解释 MCP HTTP server 用途（开发工具行业惯例） | 防止以 Guideline 2.5.x 拒 |
@@ -192,7 +192,7 @@
 - [x] 0.4 Universal Binary 验证（2026-04-29，详见 DECISIONS TD-006）
 
 ### Phase 1 进度
-（待开始 — 待 Rebecca 拍板"GitHub 公开 vs 闭源"和"v1 付费 vs 免费"两个产品决策后启动）
+（**已解锁，待启动** — 2026-05-02 Rebecca 拍板 v1 免费 + 开源 MIT + 主推用嘴编程，所有阻塞 Phase 1 的产品决策已完成。下一步：Phase 1.1 创建 Xcode 工程）
 
 ### Phase 2 进度
 （待开始）

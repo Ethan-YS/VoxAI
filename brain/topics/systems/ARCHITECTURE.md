@@ -79,11 +79,13 @@
   - **Keychain**：Cloud TTS API Key（绝对不落 UserDefaults）
   - **`Application Support/VoxAI/mcp-config.json`**：MCP 端口 + token，文件权限 600
 
-### DialogView（用户语音输入面板）
+### DialogView（用户语音输入面板）—— v1 产品脸面
 - 悬浮窗，常驻置顶，能在任何 app 上面工作
 - 歌词式渲染：已完成段落淡出、活跃段落高亮
 - 自动标点（macOS 13+ 原生 `addsPunctuation`）
-- 复制到剪贴板按钮
+- **录音停止后自动复制到剪贴板**（默认开，DR-020）—— "用嘴编程"流畅性的核心实现
+- 手动复制按钮（保留作 fallback）
+- Settings 提供"自动复制"开关
 
 ### MenuBarView / SettingsView
 - **菜单栏**：常驻 SF Symbol 图标，状态机（正常 / 警告 badge）
@@ -91,28 +93,34 @@
 
 ## 三、数据流
 
-### 用户说话 → AI 收到文字
+### 用户说话 → AI 收到文字（**v1 主路径**）
 ```
 用户口头 → AVAudioEngine (硬件)
-       → SFSpeechRecognizer (系统 ASR)
+       → SFSpeechRecognizer (系统 ASR，可能经 Apple 服务器，DR-018)
        → TranscriptionService (sessionGeneration 控制)
-       → DialogView (歌词渲染 + 复制按钮)
-       → 用户手动复制 → 粘贴到 Claude Code
+       → DialogView (歌词渲染)
+       → 录音停止 → NSPasteboard.general (自动复制，DR-020)
+       → 用户切到 Claude → ⌘V → 粘贴
 ```
 
-注：v1 不把 ASR 结果**主动**推到 MCP server——用户手动复制粘贴，因为：
-- MCP server 是 Claude Code 主动调用，不是 VoxAI 主动 push
-- 自动 push 需要新 MCP 工具 `get_pending_transcript()` 或类似设计，v1 暂不做
+**为什么自动复制是 v1 主路径**：少一次"点复制"鼠标动作，从 4 步压到 3 步——这是"用嘴编程"流畅性的核心兑现。
 
-### AI 输出 → 用户听到
+**为什么不直接 paste**：v1 不做"自动 ⌘V paste"（CGEvent 模拟键盘）——需要 Accessibility 权限，首次启动用户要在系统隐私设置手动加 VoxAI，授权摩擦大。v1.x 评估。
+
+**MCP server 不参与 ASR 路径**：v1 的 MCP server 只暴露 TTS 工具（`speak` / `stop_speaking` / `list_voices` / `update_voice_config`），不暴露 ASR。Claude Code 拿到用户语音输入靠剪贴板，不靠 MCP——这符合"剪贴板是 macOS 工具间最通用的 IPC"原则。
+
+### AI 输出 → 用户听到（**v1 次要路径**，不是主推卖点）
 ```
 Claude Code → HTTP POST /mcp { tools/call: speak }
            → MCPServer (验 token, 解析参数)
            → TTSEngine.speak(text)
+              [若已有朗读在跑：先打断当前再开始新的，DR-019]
            → System 路径：AVSpeechSynthesizer
            → Cloud 路径：OpenAITTSClient HTTP → 音频流 → AVAudioPlayer
            → 用户听到声音
 ```
+
+**v1 定位**：MCP `speak` 仍然实现，但不是主推。Settings 里 MCP 配置是"高级"区域，不是封面。
 
 ## 四、关键技术决策摘要
 
@@ -133,20 +141,22 @@ Claude Code → HTTP POST /mcp { tools/call: speak }
 
 ```
 DialogView ──→ TranscriptionService ──→ AppSettings
-                                       └─→ Keychain (无)
+          └─→ NSPasteboard.general (录音停止时自动写入，DR-020)
 
 SettingsView ──→ AppSettings
             └─→ TTSEngine.testConnection (Cloud)
 
 MCPServer ──→ TTSEngine ──→ SystemTTSEngine
           │                └─→ OpenAITTSClient ──→ AppSettings (Cloud config)
+          │                                     └─→ Keychain (API Key)
           └─→ AppSettings (运行时配置变更)
 
 VoxAIApp ──→ 启动时初始化 MCPServer + AppSettings
          └─→ 3 个 Scene：dialog / settings / menubar
+         └─→ 单实例锁（防多个 VoxAI 同时跑导致端口冲突）
 ```
 
-无循环依赖。MCPServer 不依赖 DialogView（v1 ASR 走手动复制）。
+无循环依赖。MCPServer 不依赖 DialogView（v1 ASR 路径靠剪贴板，不经 MCP）。
 
 ## 六、跨架构兼容（Universal Binary）
 

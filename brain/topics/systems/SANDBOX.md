@@ -58,8 +58,9 @@
 ## 三、PrivacyInfo.xcprivacy（Phase 3.5 完成）
 
 要声明的数据类型：
-- **麦克风** → 用于 ASR，不上传
-- **Speech Recognition** → 系统级 API，Apple 自己处理
+- **麦克风** → 捕获音频用于 ASR；VoxAI 本身不存储、不上传
+- **Speech Recognition** → 通过 Apple `SFSpeechRecognizer` 处理。**v1 默认服务器模式（DR-018）**——根据 Apple 隐私策略，音频可能由 Apple 服务器处理。这是 Apple 平台标准行为，VoxAI 必须诚实声明
+- **剪贴板（Clipboard）** → 录音停止后自动写入转录文字（DR-020），用户可在 Settings 关闭
 - **Network**（Cloud TTS） → 用户自己配的 endpoint，发什么由用户决定
 - **Keychain** → 存 Cloud TTS API Key
 

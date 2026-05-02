@@ -35,34 +35,41 @@
 - [ ] (可选) 演示视频 / GIF
 
 ### 文案资产
-- [ ] 应用描述（英文，主语言）
-- [ ] 应用描述（中文，Localized）
-- [ ] 关键词（英文 + 中文）
-- [ ] 类别：Developer Tools（主）/ Productivity（副）
+- [ ] 应用描述（英文，主语言）—— **主轴：用嘴编程 / Voice input for AI coding**
+- [ ] 应用描述（中文，Localized）—— **主轴：用嘴编程**
+- [ ] 关键词（英文 + 中文）—— **主关键词建议**：
+  - 英：`speech to text`, `voice input`, `dictation`, `voice for AI`, `talk to Claude`, `voice coding`, `hands-free coding`
+  - 中：`语音转文字`, `语音输入`, `语音编程`, `用嘴编程`, `AI 助手`, `Claude Code`
+- [ ] 类别：**Productivity（主）/ Developer Tools（副）**——v1 定位"用嘴编程"，Productivity 是更大的池子；Developer Tools 作副承接技术受众（DR-015）
 - [ ] What's New（更新说明）
 - [ ] App Review Notes（解释 MCP HTTP server 用途，详见下面"四、审核 Notes"）
 
 ## 四、App Review Notes（提审时填）
 
-> VoxAI is a macOS speech I/O bridge for AI development tools (Claude Code, Cursor, etc.). It runs a local HTTP/SSE MCP server bound to 127.0.0.1 on a random port. This is a developer-tool industry convention (similar to Claude Desktop, language servers, code formatters) — the server only accepts localhost connections and uses Bearer token authentication. No network listener on external interfaces.
+> VoxAI is a macOS voice input tool for AI coding workflows. The primary use case is speech-to-text dictation: developers speak prompts, the transcribed text is automatically copied to the clipboard, and the user pastes into Claude Code or other AI tools.
 >
-> The MCP (Model Context Protocol) is an open standard maintained by Anthropic at modelcontextprotocol.io, allowing AI tools to discover and use external capabilities. VoxAI exposes 4 tools: speak / stop_speaking / list_voices / update_voice_config.
+> A secondary feature: VoxAI runs a local HTTP/SSE MCP server bound to 127.0.0.1 on a random port. This optional capability allows AI tools to ask VoxAI to read text aloud (text-to-speech). This is a developer-tool industry convention (similar to Claude Desktop, language servers, code formatters) — the server only accepts localhost connections and uses Bearer token authentication. No network listener on external interfaces.
 >
-> Cloud TTS uses user-supplied OpenAI API keys (stored in Keychain). VoxAI does not bundle any TTS service or rely on undocumented APIs. All network calls are to user-configured endpoints.
+> The MCP (Model Context Protocol) is an open standard maintained by Anthropic at modelcontextprotocol.io. VoxAI exposes 4 TTS tools: speak / stop_speaking / list_voices / update_voice_config.
+>
+> Speech recognition uses Apple's SFSpeechRecognizer (system framework), which may process audio on Apple servers per Apple's privacy policy. VoxAI itself does not collect or upload any audio or text.
+>
+> Cloud TTS (optional, off by default) uses user-supplied OpenAI API keys (stored in Keychain). VoxAI does not bundle any TTS service or rely on undocumented APIs. All network calls are to user-configured endpoints.
 
-**为什么要写**：MCP HTTP server 是新模式，审核员可能不熟悉。提前解释避免被以 Guideline 2.5.x 拒。
+**为什么要写**：MCP HTTP server 是新模式，审核员可能不熟悉；且 v1 主推 voice input，要让审核员一眼看清核心用例不是 server。提前解释避免被以 Guideline 2.5.x 拒。
 
 ## 五、隐私政策必写项
 
-托管位置：GitHub Pages，仓库 `docs/privacy.html`（DECISIONS 决议 #2）
+托管位置：GitHub Pages，仓库 `docs/privacy.html`
 
-必须涵盖：
-- **麦克风用途**：实时语音转文字，不上传任何音频到服务器
-- **Speech Recognition**：使用 Apple 系统级 SFSpeechRecognizer，按 Apple 隐私政策处理
-- **Cloud TTS**：用户自配的第三方 endpoint，VoxAI 仅作 HTTP client，**用户的文字内容会发到用户配置的 endpoint**——这一条要明确警告
-- **API Key 存储**：macOS Keychain，不上传
+**核心准确表述**（之前的"不上传任何音频"是错误的，DR-018 拍板修正）：
+- **VoxAI 本身**不收集、不存储、不上传任何用户的音频或文字
+- **语音识别**由 Apple 系统级 `SFSpeechRecognizer` 处理。**根据 Apple 的隐私策略，这可能涉及将音频发送到 Apple 服务器进行处理**——这是 Apple 平台的标准行为，VoxAI 选择默认服务器模式以提供最佳识别质量
+- **剪贴板**：录音停止后，VoxAI 会把转录文字写入系统剪贴板（默认行为，用户可在 Settings 关闭）。剪贴板内容由用户控制
+- **Cloud TTS（可选，默认关闭）**：用户自配的第三方 endpoint。VoxAI 仅作 HTTP client，**用户的文字内容会发到用户配置的 endpoint**——这一条要明确警告
+- **API Key 存储**：macOS Keychain，不上传任何服务器
 - **MCP Server**：localhost 监听，不接受外网连接，Bearer Token 认证
-- **不收集**：不收集用户身份、不收集使用统计、无 telemetry
+- **不收集**：VoxAI 不收集用户身份、不收集使用统计、无 telemetry、不连任何 voxai.com 类似域名
 
 ## 六、营销（可选）
 
