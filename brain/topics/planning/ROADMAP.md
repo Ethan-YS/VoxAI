@@ -225,8 +225,28 @@
   - 麦克风权限拒绝时弹 alert 引导用户去系统设置
   - macOS 13.0 兼容：用单参 `.onChange(of:_:)` 而不是 macOS 14+ 的双参版
   - Debug + Release universal binary（arm64+x86_64）双双验证通过；二进制 252K
-- [ ] 1.7 `VoxAIApp.swift`（3 Scenes + 单实例锁）
+- [x] **1.7 `VoxAIApp.swift`**（2026-05-03 完成）
+  - 改写 `VoxAI/VoxAIApp.swift`：3 Scenes（dialog WindowGroup + Settings 占位 + MenuBarExtra）
+  - 注入 `AppSettings.shared` + `TranscriptionService(settings:.shared)` 通过 `@StateObject` + `.environmentObject(...)`
+  - MenuBarExtra：状态感知图标（idle/recording/paused 三态颜色）+ "显示浮窗 / Show Dialog"（⇧⌘D）+ "退出 / Quit"（⌘Q）+ 状态行（非交互的 status row）
+  - Settings Scene 留 `SettingsPlaceholderView` —— Phase 2.7 替换为完整 SettingsView
+  - 删除默认 `VoxAI/ContentView.swift`（不再被引用）
+  - **单实例锁未加**（v1.7 决定）：macOS Launch Services 已防 `open` 双开，留 Phase 2.5 MCPServer 端口绑定时再评估
+  - Debug + Release universal binary（arm64+x86_64）双双通过；二进制 1.1M
+- [ ] **Phase 1 末尾 Apple Silicon 上 ⌘R 真机测试**——录音 / 续接 / 自动复制走一遍
 - [ ] **Phase 1 末尾 Intel Mac 实测**
+
+---
+
+### 🎉 Phase 1 闭环（2026-05-03）
+
+Phase 1 所有工程任务完成，**VoxAI 第一次成为可启动的 app**。下一步是真机测试——在 Apple Silicon 上 ⌘R 跑一下用嘴编程的核心流（录音 → 自动复制 → 切 Claude → 粘贴）。Intel Mac 实测留到 Phase 3.1。
+
+Phase 1 累积工程经验（写到 STATUS 已发现 commit message 同步过）：
+- Swift 6 strict concurrency 不再隐式导入 Combine（需要 `import Combine` 显式声明 ObservableObject/@Published/Timer.publish）
+- @MainActor 静态属性（如 `AppSettings.shared`）不能作为 default argument expression（nonisolated context）
+- `.onChange(of:_,_:)` 双参版是 macOS 14+，13.0 必须用单参版
+- Xcode 默认 DEVELOPMENT_TEAM 跟系统 iCloud 走（美区免费 Team `JK89RW5Q4H`），新建 Apple 项目要手动切到付费 Team `YNMBJ5H736`
 
 ### Phase 2 进度
 （待开始）

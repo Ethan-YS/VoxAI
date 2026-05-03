@@ -46,10 +46,9 @@ grep -rn "⚠️ 待填 ⚠️" brain/   # 应只在 HANDOFF.md / topics 子 REA
 | `TranscriptionService` | ASR（SFSpeechRecognizer + AVAudioEngine + sessionGeneration 防过期回调） | ✅ Phase 1.5 完成（2026-05-03） | `VoxAI/Services/TranscriptionService.swift` |
 | `AppSettings` | 配置（UserDefaults + Keychain stub） | ✅ Phase 1.4 完成（2026-05-03） | `VoxAI/Models/AppSettings.swift` |
 | `DialogView` | 悬浮录音窗 + 歌词渲染 + 自动复制剪贴板（三态 UI） | ✅ Phase 1.6 完成（2026-05-03） | `VoxAI/Views/DialogView.swift` |
-| `ContentView` | 默认 SwiftUI 模板（占位，Phase 1.6 删除/替换） | ⚠️ 占位 | `VoxAI/ContentView.swift` |
-| `SettingsView` | 设置面板 | ⏳ Phase 2.7 实现 | `VoxAI/Views/SettingsView.swift`（待建） |
-| `MenuBarView` | 菜单栏图标 + 状态机 | ⏳ Phase 2.8 实现 | `VoxAI/Views/MenuBarView.swift`（待建） |
-| `VoxAIApp` | 主入口 + 3 Scenes（默认模板，Phase 1.7 重写） | ⚠️ 默认模板 | `VoxAI/VoxAIApp.swift` |
+| `SettingsView` | 设置面板 | ⏳ Phase 2.7 实现（v1.7 留 placeholder） | `VoxAI/VoxAIApp.swift` 内 `SettingsPlaceholderView`（待移到 `VoxAI/Views/SettingsView.swift`） |
+| `MenuBarContent` | 菜单栏图标 + 状态行 + Show Dialog + Quit | ✅ Phase 1.7 完成（基础版）；Phase 2.8 加错误状态 badge | `VoxAI/VoxAIApp.swift` 内 |
+| `VoxAIApp` | 主入口 + 3 Scenes + DI | ✅ Phase 1.7 完成（2026-05-03） | `VoxAI/VoxAIApp.swift` |
 
 ## 三、模块依赖关系
 
