@@ -216,7 +216,15 @@
   - 加 `requestPermissions()` 同时请求 Speech + Microphone（macOS 14+ 严格了麦克风权限）
   - 加 `onStopped` 钩子供 DialogView 触发自动复制（DR-020）
   - Debug + Release universal binary（arm64+x86_64）双双验证通过
-- [ ] 1.6 `DialogView`（重写，含自动复制到剪贴板 DR-020）
+- [x] **1.6 `DialogView`**（2026-05-03 完成）
+  - `VoxAI/Views/DialogView.swift`（约 530 行）—— v1 产品脸面
+  - 三态 UI：idle 空（mic 按钮）/ recording-paused（歌词 + 控制条）/ idle 但有 transcript（完成态：复制 + 清空 + 重录）
+  - **DR-020 自动复制集成**：在 `onAppear` 接 `ts.onStopped`，依据 `AppSettings.autoCopyToClipboard` 决定是否在 stop 瞬间写 NSPasteboard + 标题栏闪 "已复制" 标签
+  - 砍掉 VoxSage 的：MeetingModeContent / "Switch to Dialog Mode" / `ts.dialogWindow` / `ts.meetingWindow` / `openWindow("meeting")` / `ts.openSettingsOnShow` / `ts.isDialogMode`（v1 永远是 dialog 模式）
+  - 关闭按钮：hide window + stop mic（避免麦克风后台静默运行）
+  - 麦克风权限拒绝时弹 alert 引导用户去系统设置
+  - macOS 13.0 兼容：用单参 `.onChange(of:_:)` 而不是 macOS 14+ 的双参版
+  - Debug + Release universal binary（arm64+x86_64）双双验证通过；二进制 252K
 - [ ] 1.7 `VoxAIApp.swift`（3 Scenes + 单实例锁）
 - [ ] **Phase 1 末尾 Intel Mac 实测**
 

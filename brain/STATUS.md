@@ -11,17 +11,17 @@
 
 ## 现在在做什么
 
-**Phase 1.5 完成**（2026-05-03）。`TranscriptionService` 已从 VoxSage 移植并适配 VoxAI Sandbox + Swift 6 concurrency + 跨架构 sampleRate 修正，Debug + Release universal binary 验证通过。
+**Phase 1.6 完成**（2026-05-03）。`DialogView`（v1 产品脸面）已写完，三态 UI（idle 空 / 录音中 / 完成态）+ DR-020 自动复制剪贴板 + 关闭按钮 + 权限引导 alert 全就位，Debug + Release universal binary 验证通过。
 
-下一步：Phase 1.6 `DialogView`——v1 产品脸面，悬浮窗 + 歌词渲染 + 录音停止后自动复制剪贴板（DR-020 主推卖点）。
+下一步：Phase 1.7 `VoxAIApp` 入口——3 Scenes 接装 + 单实例锁，**这是 Phase 1 最后一个工程任务**。完成后 Phase 1 闭环。
 
 ## 下一步
 
 按 ROADMAP Phase 1 余下任务：
 
-1. **Phase 1.6 DialogView**（产品脸面）—— `VoxAI/Views/DialogView.swift`，悬浮窗 + 歌词渲染 + **录音停止后自动复制到剪贴板**（DR-020）+ 录音/暂停/停止/清空控制条 + 手动复制按钮兜底
-2. **Phase 1.7 VoxAIApp.swift**（入口）—— 3 Scenes（dialog WindowGroup + settings Window + MenuBarExtra）+ 单实例锁防多开 + 启动时拉起 dialog 浮窗
-3. **Phase 1 末尾 Intel Mac 实测**
+1. **Phase 1.7 VoxAIApp.swift**（入口）—— 改写默认模板：3 Scenes（dialog WindowGroup + settings Window + MenuBarExtra）+ 单实例锁防多开 + 启动时拉起 dialog 浮窗 + 注入 `TranscriptionService(.shared)` + `AppSettings.shared` 到 environment
+2. **Phase 1 末尾 Apple Silicon 上 ⌘R 真机测试**——录音 / 续接 / 自动复制走一遍
+3. **Phase 1 末尾 Intel Mac 实测**——录音 / 续接 / 自动复制功能跨架构验
 
 完整任务表见 `topics/planning/ROADMAP.md`。
 
@@ -41,6 +41,15 @@
 **Phase 1.4 AppSettings**：
 - 创建 `VoxAI/Models/AppSettings.swift`（约 220 行）：`ObservableObject` + `@Published`（macOS 13 不支持 @Observable，DR-005）；9 个 UserDefaults 字段；Cloud API Key Keychain stub；`resetToDefaults()` 方法；所有 key 加 `voxai.` 前缀
 - **Swift 6 工程经验 #1**：`import SwiftUI` 不再隐式导入 Combine——用 `ObservableObject` / `@Published` 必须显式 `import Combine`
+
+**Phase 1.6 DialogView**：
+- 创建 `VoxAI/Views/DialogView.swift`（约 530 行）—— v1 产品脸面，悬浮窗
+- 三态 UI 分流：idle 空（mic 按钮）/ recording-paused（歌词 + 控制条）/ idle 但 transcript 非空（完成态：复制 + 清空 + 重录）
+- DR-020 集成：onAppear 接 `ts.onStopped` 钩子；stop 瞬间根据 `settings.autoCopyToClipboard` 写 NSPasteboard + 标题栏闪 "已复制" 标签
+- 砍掉 VoxSage 的会议模式整套（MeetingModeContent / `ts.isDialogMode` / `dialogWindow` / `meetingWindow` / "Switch to Dialog Mode" 按钮）
+- 关闭按钮 = hide window + stop mic（避免麦克风后台静默运行）
+- macOS 13.0 兼容：用单参 `.onChange(of:_:)`（macOS 14+ 双参版会编译失败）
+- **Swift 6 工程经验 #3**：Combine 不再隐式跟 SwiftUI 一起来，`Timer.publish().autoconnect()` 也需要 `import Combine`
 
 **Phase 1.5 TranscriptionService**：
 - 创建 `VoxAI/Services/TranscriptionService.swift`（约 320 行）：从 VoxSage 移植 `sessionGeneration` 防过期回调机制
