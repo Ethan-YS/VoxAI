@@ -44,7 +44,7 @@ grep -rn "⚠️ 待填 ⚠️" brain/   # 应只在 HANDOFF.md / topics 子 REA
 | `SystemTTSEngine` | AVSpeechSynthesizer 包装 | ⏳ 设计完成，Phase 2 实现 | `VoxAI/Services/SystemTTSEngine.swift`（待建） |
 | `OpenAITTSClient` | HTTP POST `/audio/speech` 客户端 | ⏳ 设计完成，Phase 2 实现 | `VoxAI/Services/OpenAITTSClient.swift`（待建） |
 | `TranscriptionService` | ASR（SFSpeechRecognizer + AVAudioEngine） | ⏳ 设计完成，Phase 1.5 移植 | `VoxAI/Services/TranscriptionService.swift`（待建） |
-| `AppSettings` | 配置（UserDefaults + Keychain） | ⏳ Phase 1.4 实现 | `VoxAI/Models/AppSettings.swift`（待建） |
+| `AppSettings` | 配置（UserDefaults + Keychain stub） | ✅ Phase 1.4 完成（2026-05-03） | `VoxAI/Models/AppSettings.swift` |
 | `DialogView` | 悬浮录音窗 + 歌词渲染 + 自动复制剪贴板 | ⏳ Phase 1.6 重写 | `VoxAI/Views/DialogView.swift`（待建） |
 | `ContentView` | 默认 SwiftUI 模板（占位，Phase 1.6 删除/替换） | ⚠️ 占位 | `VoxAI/ContentView.swift` |
 | `SettingsView` | 设置面板 | ⏳ Phase 2.7 实现 | `VoxAI/Views/SettingsView.swift`（待建） |

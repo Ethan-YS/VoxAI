@@ -200,7 +200,13 @@
   - **Release universal binary 验证通过**：`x86_64 + arm64` 双 slice，risk R-006 消解
 - [ ] 1.2 entitlements + Info.plist 隐私描述（已并入 1.1 完成）
 - [ ] 1.3 ~~Info.plist 隐私描述~~（同上，已合入 1.1）
-- [ ] 1.4 `AppSettings`（UserDefaults `@AppStorage`）
+- [x] **1.4 `AppSettings`**（2026-05-03 完成）
+  - `VoxAI/Models/AppSettings.swift` — `ObservableObject` + `@Published`（macOS 13 不支持 @Observable）
+  - 9 个 UserDefaults 字段：识别语言 / TTS 引擎 / System 中英语音 / Cloud Base URL / Cloud Model / Cloud Voice / 语速 / 自动复制剪贴板（DR-020 默认 true）
+  - Cloud API Key 走 Keychain（DR-009），Phase 1.4 留 stub，Phase 2.4 接入 KeychainHelper
+  - `resetToDefaults()` 方法支持"恢复出厂设置"
+  - 所有 key 加 `voxai.` 前缀防冲突
+  - Debug + Release universal binary 验证通过
 - [ ] 1.5 `TranscriptionService`（重写，参考 VoxSage `sessionGeneration` 设计）
 - [ ] 1.6 `DialogView`（重写，含自动复制到剪贴板 DR-020）
 - [ ] 1.7 `VoxAIApp.swift`（3 Scenes + 单实例锁）
