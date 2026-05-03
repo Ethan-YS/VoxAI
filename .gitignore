@@ -1,1 +1,27 @@
 .references/
+
+# Xcode user-specific state (per-user, should never be shared)
+**/xcuserdata/
+*.xcuserstate
+
+# Xcode build outputs
+build/
+DerivedData/
+*.xcarchive/
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+.build/
+Package.resolved
+.swiftpm/
+
+# CocoaPods (if ever introduced)
+Pods/
+
+# Carthage (if ever introduced)
+Carthage/Build/
+
+# macOS
+.DS_Store
