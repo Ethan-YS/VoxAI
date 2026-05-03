@@ -207,7 +207,15 @@
   - `resetToDefaults()` 方法支持"恢复出厂设置"
   - 所有 key 加 `voxai.` 前缀防冲突
   - Debug + Release universal binary 验证通过
-- [ ] 1.5 `TranscriptionService`（重写，参考 VoxSage `sessionGeneration` 设计）
+- [x] **1.5 `TranscriptionService`**（2026-05-03 完成）
+  - `VoxAI/Services/TranscriptionService.swift`（约 320 行）—— 从 VoxSage 移植 `sessionGeneration` 防过期回调机制
+  - 砍掉：`isDialogMode` 双路 / 所有会议模式代码 / `meetingAudioFile` / `lastMeetingAudioPath` / spawn Python `startMCPServer` / `findProjectRoot` / NSWindow 持有
+  - **跨架构修正**：`silenceLimit` 从 `inputNode.outputFormat(forBus:0).sampleRate / bufferSize` 实时计算（VoxSage 写死 43.0 在 48kHz Intel Mac 会偏差 ~10%）
+  - Swift 6 strict concurrency 兼容：`@MainActor` 隔离 + audio tap closure 用 captured locals + `Task @MainActor` 切回主线程更新 `@Published`
+  - 加 `TranscriptionError` enum + `lastError` @Published（不再 try? 静默吞错误）
+  - 加 `requestPermissions()` 同时请求 Speech + Microphone（macOS 14+ 严格了麦克风权限）
+  - 加 `onStopped` 钩子供 DialogView 触发自动复制（DR-020）
+  - Debug + Release universal binary（arm64+x86_64）双双验证通过
 - [ ] 1.6 `DialogView`（重写，含自动复制到剪贴板 DR-020）
 - [ ] 1.7 `VoxAIApp.swift`（3 Scenes + 单实例锁）
 - [ ] **Phase 1 末尾 Intel Mac 实测**
