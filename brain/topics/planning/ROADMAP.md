@@ -192,7 +192,19 @@
 - [x] 0.4 Universal Binary 验证（2026-04-29，详见 DECISIONS TD-006）
 
 ### Phase 1 进度
-（**已解锁，待启动** — 2026-05-02 Rebecca 拍板 v1 免费 + 开源 MIT + 主推用嘴编程，所有阻塞 Phase 1 的产品决策已完成。下一步：Phase 1.1 创建 Xcode 工程）
+- [x] **1.1 创建 Xcode 工程**（2026-05-03 完成）
+  - Xcode 26.4.1 GUI 创建空 macOS App 项目（Rebecca 操作）
+  - 移到 `Developer/VoxAI/`，搬入 git 仓库
+  - 修正 build settings：deployment target 13.0、Bundle ID 全小写 `com.ethanys.voxai`、DEVELOPMENT_TEAM 切换到 paid Team `YNMBJ5H736`、加 entitlements 引用、加隐私描述、加 LSUIElement
+  - 创建 `VoxAI/VoxAI.entitlements`：sandbox + audio-input + network.client + network.server
+  - **Release universal binary 验证通过**：`x86_64 + arm64` 双 slice，risk R-006 消解
+- [ ] 1.2 entitlements + Info.plist 隐私描述（已并入 1.1 完成）
+- [ ] 1.3 ~~Info.plist 隐私描述~~（同上，已合入 1.1）
+- [ ] 1.4 `AppSettings`（UserDefaults `@AppStorage`）
+- [ ] 1.5 `TranscriptionService`（重写，参考 VoxSage `sessionGeneration` 设计）
+- [ ] 1.6 `DialogView`（重写，含自动复制到剪贴板 DR-020）
+- [ ] 1.7 `VoxAIApp.swift`（3 Scenes + 单实例锁）
+- [ ] **Phase 1 末尾 Intel Mac 实测**
 
 ### Phase 2 进度
 （待开始）

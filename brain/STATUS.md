@@ -11,37 +11,36 @@
 
 ## 现在在做什么
 
-**项目脑搭好 + 产品定位拍板**（2026-05-02）。Phase 0（技术风险验证）已全部完成，**Phase 1 已解锁待启动**——所有产品决策（v1 主推用嘴编程 / 免费 / 开源 MIT / 自动复制剪贴板 / SFSpeechRecognizer 默认服务器 / MCP speak 打断当前）已拍板，记录在 DECISIONS DR-015~020。
+**Phase 1.1 完成**（2026-05-03）。Xcode 工程骨架已建立，entitlements + Info.plist 配置就位，universal binary 双架构验证通过。risk R-006（Xcode universal bug）已消解。
+
+下一步：进入 Phase 1.4-1.7 写实际代码。
 
 ## 下一步
 
-**Phase 1.1**：创建 Xcode 项目。具体子任务：
+按 ROADMAP Phase 1 余下任务，建议顺序：
 
-1. Xcode 工程：macOS 13+ deployment target、`ARCHS = $(ARCHS_STANDARD)`、Sandbox 开启
-2. **工程创建后立即 archive 一次**验证 universal binary 双 slice（防 Xcode 16.x bug）
-3. Bundle ID `com.ethanys.voxai`（已在 Apple Developer Portal 锁定，Team YNMBJ5H736）
-4. entitlements: `app-sandbox` + `device.audio-input` + `network.client` + `network.server`
-5. Info.plist：`NSMicrophoneUsageDescription` + `NSSpeechRecognitionUsageDescription`（中英两版）
-6. ~~项目根加 `LICENSE` 文件（MIT 全文）~~ ✅ 已完成（2026-05-02）
+1. **Phase 1.4 AppSettings**（轻，先打地基）—— `Models/AppSettings.swift`，`@AppStorage` 包装识别语言 / TTS 引擎 / Cloud 配置 / 语速等；API Key 用 Keychain（Phase 2.4 才用，1.4 先留 stub）
+2. **Phase 1.5 TranscriptionService**（重头）—— `Services/TranscriptionService.swift`，从 VoxSage 的 ASR 实现移植 `sessionGeneration` 防过期回调机制。**关键：`silenceLimit` 必须从 `inputNode.outputFormat(forBus: 0).sampleRate` 计算**，不能写死，否则 Intel Mac 跨架构会偏差。砍掉所有会议模式 / `findProjectRoot` / spawn Process 痕迹
+3. **Phase 1.6 DialogView**（产品脸面）—— `Views/DialogView.swift`，悬浮窗 + 歌词渲染 + **录音停止后自动复制到剪贴板**（DR-020 主推卖点）+ Settings 给开关
+4. **Phase 1.7 VoxAIApp.swift**（入口）—— 3 Scenes（dialog WindowGroup + settings Window + MenuBarExtra）+ 单实例锁防多开
 
-完整 Phase 1 任务表见 `topics/planning/ROADMAP.md` Phase 1 节。
+完整 Phase 1 任务表见 `topics/planning/ROADMAP.md`。
 
 ## 卡点 / 待确认
 
-- ✅ ~~Bundle ID `com.ethanys.voxai` 锁定~~ — 2026-05-02 已在 Apple Developer Portal Identifiers 注册成功（Team ID YNMBJ5H736）
-- 🟡 Phase 0.4 Universal Binary 在 SPM 路径已通过，**Xcode project 路径仍未验证**——Phase 1.1 创建工程后立即 archive 验
-- 🟡 Phase 1.5 SystemTTSEngine 完成后，需要 Rebecca 试听 5-10 段典型 AI 输出（中英混杂、技术术语）判断 v1 中文音质是否"够用"——这是非阻塞但影响 v1 体验的产品验收
+- 🟡 Phase 1.5 SystemTTSEngine 完成后，需要 Rebecca 试听 5-10 段典型 AI 输出（中英混杂、技术术语）判断 v1 中文音质是否"够用"——非阻塞但影响 v1 体验
+- 🟡 Phase 1 末尾 Intel Mac 实测——`Developer/VoxAI/` 目录里的 archive 跑到 Intel Mac 上验录音 / 续接 / 自动复制功能
 
 ## 未提交的改动
 
-无。最新 commit 已包含 brain/ 搭建 + 定位调整级联更新。
+无。最新 commit 是 brain/ 状态更新。
 
 ## 最近一次会话做了什么
 
-2026-05-02 这次会话：
-- 搭建 brain/ v2 项目脑（17 个文件，含 LICENSE_AUDIT 法务审计）
-- 清理项目根 CLAUDE.md：删除"工程师兜底原则"等规训性表达，只保留技术决策
-- **重大产品定位调整**：Rebecca 提出 v1 主卖点是"用嘴编程"——ASR 输入侧聚焦，TTS 是次要功能
-- 拍板 6 条决策（DR-015~020）：定位 / 免费 / 开源 / SFSpeechRecognizer 默认服务器 / MCP speak 打断 / 自动复制剪贴板
-- 修正隐私政策表述（"不上传任何音频"→"VoxAI 本身不收集；ASR 由 Apple SFSpeechRecognizer 处理可能经 Apple 服务器"）
-- 级联更新 PROJECT.md / ARCHITECTURE.md / APP_STORE_CHECKLIST.md / SANDBOX.md / ROADMAP.md / LICENSE_AUDIT.md
+2026-05-03 这次会话：
+- Phase 1.1 全程：Xcode 26.4.1 GUI 创建空项目（Rebecca 选保存到桌面避免覆盖现有 brain/）；Sage 用命令行搬到 `Developer/VoxAI/`、清桌面、补 `.gitignore`
+- 改 project.pbxproj：deployment target 26.4 → 13.0；Bundle ID 大写 → 全小写对应 Apple Developer Portal 锁定的；DEVELOPMENT_TEAM 从 Personal Team 切到 paid Apple Developer Program Team `YNMBJ5H736`；移除 v1 不需要的 `ENABLE_USER_SELECTED_FILES` / `REGISTER_APP_GROUPS`；加 `CODE_SIGN_ENTITLEMENTS` 引用；加 INFOPLIST_KEY_NSMicrophoneUsageDescription / NSSpeechRecognitionUsageDescription（中文）/ LSUIElement = YES（菜单栏 app 模式，不显示 Dock 图标）
+- 创建 `VoxAI/VoxAI.entitlements`：sandbox + audio-input + network.client + network.server
+- `xcodebuild Release ARCHS='arm64 x86_64' CODE_SIGNING_ALLOWED=NO` build 通过；`lipo -info` 验证 universal binary 双 slice
+- risk R-006（Xcode universal bug）从 🟡 改 🟢 已消解
+- ROADMAP Phase 1 进度更新

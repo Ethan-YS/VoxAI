@@ -38,16 +38,18 @@ grep -rn "⚠️ 待填 ⚠️" brain/   # 应只在 HANDOFF.md / topics 子 REA
 
 | 模块 | 职责 | 状态 | 主要位置 |
 |---|---|---|---|
+| Xcode 工程骨架 | 项目文件 + entitlements + Info.plist | ✅ Phase 1.1 完成（2026-05-03） | `VoxAI.xcodeproj/`、`VoxAI/VoxAI.entitlements` |
 | `MCPServer` | HTTP/SSE MCP server，绑 127.0.0.1:0 | ⏳ 设计完成，Phase 2 实现 | `VoxAI/Services/MCPServer.swift`（待建） |
 | `TTSEngine` | TTS 抽象 + 路由（System / Cloud） | ⏳ 设计完成，Phase 2 实现 | `VoxAI/Services/TTSEngine.swift`（待建） |
 | `SystemTTSEngine` | AVSpeechSynthesizer 包装 | ⏳ 设计完成，Phase 2 实现 | `VoxAI/Services/SystemTTSEngine.swift`（待建） |
 | `OpenAITTSClient` | HTTP POST `/audio/speech` 客户端 | ⏳ 设计完成，Phase 2 实现 | `VoxAI/Services/OpenAITTSClient.swift`（待建） |
 | `TranscriptionService` | ASR（SFSpeechRecognizer + AVAudioEngine） | ⏳ 设计完成，Phase 1.5 移植 | `VoxAI/Services/TranscriptionService.swift`（待建） |
 | `AppSettings` | 配置（UserDefaults + Keychain） | ⏳ Phase 1.4 实现 | `VoxAI/Models/AppSettings.swift`（待建） |
-| `DialogView` | 悬浮录音窗 + 歌词渲染 | ⏳ Phase 1.6 重写 | `VoxAI/Views/DialogView.swift`（待建） |
+| `DialogView` | 悬浮录音窗 + 歌词渲染 + 自动复制剪贴板 | ⏳ Phase 1.6 重写 | `VoxAI/Views/DialogView.swift`（待建） |
+| `ContentView` | 默认 SwiftUI 模板（占位，Phase 1.6 删除/替换） | ⚠️ 占位 | `VoxAI/ContentView.swift` |
 | `SettingsView` | 设置面板 | ⏳ Phase 2.7 实现 | `VoxAI/Views/SettingsView.swift`（待建） |
 | `MenuBarView` | 菜单栏图标 + 状态机 | ⏳ Phase 2.8 实现 | `VoxAI/Views/MenuBarView.swift`（待建） |
-| `VoxAIApp` | 主入口 + 3 Scenes | ⏳ Phase 1.7 实现 | `VoxAI/VoxAIApp.swift`（待建） |
+| `VoxAIApp` | 主入口 + 3 Scenes（默认模板，Phase 1.7 重写） | ⚠️ 默认模板 | `VoxAI/VoxAIApp.swift` |
 
 ## 三、模块依赖关系
 
@@ -138,6 +140,8 @@ VoxAIApp ──→ 启动时初始化 MCPServer + AppSettings
 | `ROADMAP.md` | 短索引 | 同上，指向 `brain/topics/planning/ROADMAP.md` |
 | `.references/swift-sdk/` | Phase 0 验证产物 | 本地 clone 的 MCP SDK，验证用，不进 build；`.gitignore` 已排除 |
 | `LICENSE` | ✅ 已建 | MIT 全文（2026-05-02 创建，DR-013/DR-017） |
+| `VoxAI.xcodeproj/` | ✅ 已建 | Xcode 项目（2026-05-03 Phase 1.1） |
+| `VoxAI/` | ✅ 已建 | App 源码目录（默认 SwiftUI 模板，待 Phase 1.5-1.7 重写） |
 | `README.md` | 待建 | Phase 4.6 创建用户文档 |
 | `VoxAI.xcodeproj/` | 待建 | Phase 1.1 创建 |
 | `VoxAI/` | 待建 | Phase 1.1 创建（App 源码） |

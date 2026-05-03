@@ -75,18 +75,16 @@
 
 ## R-006 Xcode 16.x universal binary bug（FB17019201）
 
-🟡 **已识别但未触发**
+🟢 **已消解（2026-05-03）**
 
-**影响**：Xcode archive 出来只有 arm64 slice，Intel 用户装了打不开。
+**影响（已消解）**：Xcode archive 出来只有 arm64 slice，Intel 用户装了打不开。
 
-**已知事实**：
-- 已在 Apple Feedback 记录（FB17019201）
-- Phase 0.4 用 SPM 路径**未复现**（DECISIONS TD-006）
-- 但 SPM 通了不等于 Xcode 项目通
+**消解依据**：
+- Phase 0.4 SPM 路径未复现（2026-04-29，TD-006）
+- **Phase 1.1 Xcode project 路径未复现**（2026-05-03）—— `xcodebuild -configuration Release ARCHS='arm64 x86_64'` 产物 `lipo -info` 显示 `x86_64 + arm64` 双 slice，二进制 148K（默认 SwiftUI 模板）
+- 环境：Xcode 26.4.1 / Swift 6.3.1 / macOS 26.4 / Apple Silicon
 
-**应对**：
-- Phase 1.1 创建 Xcode 项目后**立即 archive 验证**，`lipo -info` 看到双 slice 才算过
-- 如果出现：先尝试 archive build 路径；不行考虑 Xcode 版本选型（升级到更新版本或降到 15.x）
+**结论**：Xcode 16.1/16.2 的 universal binary bug 在 Xcode 26.x 已修复或绕过，VoxAI 在当前工具链上不会触发此风险。如果未来切到 Xcode 16.x 老版本或者遇到 archive 路径异常，需重新评估。
 
 ## R-007 第三方依赖许可证踩雷
 
@@ -153,7 +151,7 @@
 | R-003 | Intel 性能差 | 🟢 | v1 无 NN，已消解 |
 | R-004 | MCP 协议演进 | 🟡 | 用官方 SDK 跟进 |
 | R-005 | Sandbox 绑端口失败 | 🟡 | NWListener fallback |
-| R-006 | Xcode universal bug | 🟡 | Phase 1.1 立即验 |
+| R-006 | Xcode universal bug | 🟢 | Phase 1.1 实测未复现，已消解 |
 | R-007 | 依赖许可证踩雷 | 🟡 | Phase 1 完成审计 |
 | R-008 | v1 用户量低 | 🟡 | 旧 VoxSage 引流 |
 | R-009 | API Key 泄漏 | 🟡 | Keychain + 不写日志 |
