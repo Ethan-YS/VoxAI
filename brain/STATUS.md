@@ -39,8 +39,9 @@
 
 2026-05-03 这次会话：
 - Phase 1.1 全程：Xcode 26.4.1 GUI 创建空项目（Rebecca 选保存到桌面避免覆盖现有 brain/）；Sage 用命令行搬到 `Developer/VoxAI/`、清桌面、补 `.gitignore`
-- 改 project.pbxproj：deployment target 26.4 → 13.0；Bundle ID 大写 → 全小写对应 Apple Developer Portal 锁定的；DEVELOPMENT_TEAM 从 Personal Team 切到 paid Apple Developer Program Team `YNMBJ5H736`；移除 v1 不需要的 `ENABLE_USER_SELECTED_FILES` / `REGISTER_APP_GROUPS`；加 `CODE_SIGN_ENTITLEMENTS` 引用；加 INFOPLIST_KEY_NSMicrophoneUsageDescription / NSSpeechRecognitionUsageDescription（中文）/ LSUIElement = YES（菜单栏 app 模式，不显示 Dock 图标）
+- 改 project.pbxproj：deployment target 26.4 → 13.0；Bundle ID 大写 → 全小写对应 Apple Developer Portal 锁定的；**DEVELOPMENT_TEAM 从美区 Apple ID `g266835@icloud.com` 的免费 Personal Team `JK89RW5Q4H` 切到中国 Apple ID `hrebeccaqy@icloud.com` 的付费 Apple Developer Program Team `YNMBJ5H736`**（Xcode 默认跟系统 iCloud 走，所以默认填美区免费 Team——不是 bug，是每次新 Apple 项目都要警觉的事）；移除 v1 不需要的 `ENABLE_USER_SELECTED_FILES` / `REGISTER_APP_GROUPS`；加 `CODE_SIGN_ENTITLEMENTS` 引用；加 INFOPLIST_KEY_NSMicrophoneUsageDescription / NSSpeechRecognitionUsageDescription（中文）/ LSUIElement = YES（菜单栏 app 模式，不显示 Dock 图标）
 - 创建 `VoxAI/VoxAI.entitlements`：sandbox + audio-input + network.client + network.server
 - `xcodebuild Release ARCHS='arm64 x86_64' CODE_SIGNING_ALLOWED=NO` build 通过；`lipo -info` 验证 universal binary 双 slice
 - risk R-006（Xcode universal bug）从 🟡 改 🟢 已消解
 - ROADMAP Phase 1 进度更新
+- **重大事实校正**：Rebecca 质疑 `JK89RW5Q4H` 归属，用 `security find-identity` 查 keychain 发现它是美区 Apple ID `g266835@icloud.com` 的 Personal Team——和付费 Team `YNMBJ5H736`（中国 ID `hrebeccaqy@icloud.com`）不是同一个账号。L2 个人档案 + brain/topics/systems/SANDBOX.md 同步更新双账号架构，纠正之前 L2 把 `JK89RW5Q4H` 标"已弃用"的不准确表述

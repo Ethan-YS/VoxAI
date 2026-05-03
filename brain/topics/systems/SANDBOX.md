@@ -139,9 +139,37 @@ App Review 提审时在 "Notes" 字段说明：
 
 **为什么要写**：MCP HTTP server 是新模式，审核员可能不熟悉。提前解释避免被以 Guideline 2.5.x 拒。
 
-## 七、关联
+## 七、签名 Team（每次新 Apple 项目都要警觉）
+
+**Rebecca 有两个 Apple ID，签名 Team 跟着分裂**：
+
+| Apple ID | Team ID | 角色 | 用在哪 |
+|---|---|---|---|
+| `g266835@icloud.com`（美区，系统 iCloud 登录） | `JK89RW5Q4H` | 免费 Personal Team | 仅本机调试 |
+| `hrebeccaqy@icloud.com`（中国，付费 Apple Developer Program） | `YNMBJ5H736` | 付费 Team | **VoxAI 上架必须用这个** |
+
+**Xcode 默认行为**：新建 Apple 项目时 Xcode 跟系统 iCloud 登录走，自动把 `DEVELOPMENT_TEAM` 填成美区免费 Team `JK89RW5Q4H`。**如果不手动改，archive 出来的产物没法上架**——付费证书在另一个账号下。
+
+**VoxAI 当前配置**（Phase 1.1 已纠正，project.pbxproj 第 163/227 等行）：
+```
+DEVELOPMENT_TEAM = YNMBJ5H736;          // 中国付费账号
+PRODUCT_BUNDLE_IDENTIFIER = com.ethanys.voxai;  // 在 YNMBJ5H736 下注册
+```
+
+**全局规则**（跨所有 Apple 项目通用）：详见 `L2-个人档案/账号密码记录.md` 的"Apple ID 双账号架构"章节。
+
+**钥匙串验证命令**（怀疑签名错乱时跑一下）：
+```bash
+security find-identity -v -p codesigning
+# 应能看到：
+#   Apple Development: g266835@icloud.com (...)  ← 美区 Personal
+#   Developer ID Application: SANG YI (YNMBJ5H736)  ← 中国付费，VoxAI 用这个
+```
+
+## 八、关联
 
 - **Entitlements 决策原因** → `brain/DECISIONS.md` DR-002 / TD-002
 - **Cloud TTS 用 OpenAI 协议而非 edge-tts 的法务原因** → `brain/DECISIONS.md` DR-008
 - **完整上架清单** → `brain/topics/operations/APP_STORE_CHECKLIST.md`
 - **Sandbox 风险登记** → `brain/topics/operations/RISKS.md`
+- **Apple ID 双账号全局架构** → `L2-个人档案/账号密码记录.md`
