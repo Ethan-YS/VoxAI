@@ -269,9 +269,19 @@ ASC macOS app 接受的尺寸（必须是其中之一）：
 - 截后用 macOS 自带 Preview 裁剪到目标尺寸
 - 不要在截图里露出私人信息（聊天窗口 / 邮箱 / 文档名）
 
-**当前状态**：
-- 浮窗局部素材在 `docs/screenshots/ui-{idle,recording,finished}.png`（840×840，README 用）
-- ASC 用的全屏截图待 Rebecca 重截
+**当前状态（2026-05-05 截图就绪）**：
+
+ASC 用全屏截图（3024×1964，符合 ASC "13"/16" Retina" 尺寸标准）：
+| 文件 | 内容 | 尺寸 |
+|---|---|---|
+| `docs/screenshots/asc-1-floating.png` | 浮窗悬浮在桌面壁纸（湖景）—— 展示常驻特性 | 3024×1964 (5.9MB) |
+| `docs/screenshots/asc-2-recording.png` | 浮窗录音中歌词 + 旁边 Claude Code 窗口 —— 展示用嘴编程主场景 | 3024×1964 (752KB) |
+| `docs/screenshots/asc-3-finished.png` | 浮窗完成态（绿色 ✓ "已复制" + 重录按钮）+ 旁边 Claude Code —— 展示 DR-020 自动复制结果 | 3024×1964 (692KB) |
+
+3 张连成一个故事：**桌面悬浮 → 录音中 → 自动复制完成准备粘贴**。
+asc-1 偏大（5.9MB）是因为桌面壁纸细节多，ASC 上限 8MB 安全。
+
+README / 项目文档用的浮窗局部素材（840×840）保留在 `docs/screenshots/ui-{idle,recording,finished}.png`。
 
 ---
 
