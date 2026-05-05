@@ -32,15 +32,37 @@ private struct WindowAccessor: NSViewRepresentable {
 
     func makeNSView(context: Context) -> NSView {
         let view = NSView()
+        // Two-step async: SwiftUI's window initialization runs in stages,
+        // and `view.window` is non-nil before SwiftUI has finished setting
+        // its own level/style. Setting `.level = .floating` in the same
+        // tick as `view.window` becomes available sometimes loses out to
+        // SwiftUI's later override. Pushing level/collectionBehavior into
+        // a second `async` (after style mutations) makes it stick reliably.
+        // VoxSage hit the same race and used the same fix.
         DispatchQueue.main.async {
             guard let w = view.window else { return }
             w.styleMask = [.borderless, .fullSizeContentView]
             w.isOpaque = false
             w.backgroundColor = .clear
             w.isMovableByWindowBackground = true
-            w.level = .floating
-            w.collectionBehavior = [.canJoinAllSpaces, .stationary]
-            window = w
+
+            DispatchQueue.main.async {
+                // .floating: float above all normal windows in this and
+                //            every other app
+                w.level = .floating
+                // .canJoinAllSpaces: visible regardless of which Space the
+                //                    user is currently on
+                // .stationary: doesn't slide with Space transitions
+                // .fullScreenAuxiliary: stays visible when other apps go
+                //                       fullscreen (otherwise the dialog
+                //                       would hide behind the fullscreen app)
+                w.collectionBehavior = [
+                    .canJoinAllSpaces,
+                    .stationary,
+                    .fullScreenAuxiliary,
+                ]
+                window = w
+            }
         }
         return view
     }
