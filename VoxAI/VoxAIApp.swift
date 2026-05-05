@@ -2,21 +2,19 @@
 //  VoxAIApp.swift
 //  VoxAI
 //
-//  App entry. Wires up shared singletons (AppSettings, TranscriptionService)
-//  and exposes three Scenes:
+//  App entry. Wires up the AppDelegate (which owns the dialog NSPanel)
+//  and exposes two SwiftUI Scenes:
 //
-//    1. dialog (WindowGroup) — the primary, always-on-top floating panel
-//       that hosts DialogView. Opens automatically at launch.
-//    2. Settings — placeholder for v1.7; Phase 2.7 fills in the real UI.
-//    3. MenuBarExtra — provides re-open access when the user has closed
-//       the dialog window (and a Quit fallback).
+//    1. Settings — system Settings window (⌘, affordance built-in).
+//    2. MenuBarExtra — the only re-entry point because LSUIElement = YES
+//       means VoxAI has no Dock icon.
 //
-//  Single-instance behavior:
-//    macOS Launch Services already prevents double-launch of the same
-//    bundle on a normal `open` invocation; the v1 build does NOT add an
-//    explicit single-instance lock. Phase 2.5 (MCPServer port binding)
-//    will revisit this if `open -n` style multi-launch becomes a real
-//    failure mode.
+//  The dialog window IS NOT a SwiftUI Scene anymore. AppDelegate owns it
+//  as an NSPanel (see AppDelegate.swift). This is a deliberate departure
+//  from Phase 1.7's design — under macOS 26 + LSUIElement = YES, SwiftUI
+//  `Window` scene's window plumbing kept resetting `.floating` level
+//  back to `.normal` during state transitions. NSPanel's
+//  `isFloatingPanel = true` is OS-level and SwiftUI doesn't override it.
 //
 
 import SwiftUI
@@ -24,56 +22,15 @@ import SwiftUI
 @main
 struct VoxAIApp: App {
 
-    @StateObject private var settings: AppSettings
-    @StateObject private var transcriptionService: TranscriptionService
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
-    @Environment(\.openWindow) private var openWindow
-
-    init() {
-        // SwiftUI's App protocol is MainActor-isolated, so this init runs
-        // on the main actor and can read AppSettings.shared (which is also
-        // MainActor-isolated). Both shared singletons are wrapped as
-        // StateObjects so SwiftUI manages their lifetime correctly.
-        let appSettings = AppSettings.shared
-        _settings = StateObject(wrappedValue: appSettings)
-        _transcriptionService = StateObject(
-            wrappedValue: TranscriptionService(settings: appSettings)
-        )
-    }
+    /// Cached references so the SwiftUI scenes can pull them into their
+    /// environment without re-creating singletons each render.
+    @StateObject private var settings = AppSettings.shared
+    @StateObject private var transcriptionService = TranscriptionService.shared
 
     var body: some Scene {
-        // MARK: - Main floating dialog
-        //
-        // Why `Window` (singleton) and NOT `WindowGroup`:
-        //   `WindowGroup` allows multiple instances of the same scene id —
-        //   every `openWindow(id: "dialog")` from the menu bar would stack
-        //   yet another floating panel on top, which is exactly what we
-        //   saw the first time we tested. `Window` gives us a single
-        //   instance that gets refocused (instead of recreated) when
-        //   openWindow is called again.
-        //
-        // Window styling is applied inside DialogView via WindowAccessor —
-        // .hiddenTitleBar here is just a cosmetic safety net.
-        Window("VoxAI", id: "dialog") {
-            DialogView()
-                .environmentObject(transcriptionService)
-                .environmentObject(settings)
-        }
-        .windowStyle(.hiddenTitleBar)
-        .windowResizability(.contentSize)
-        .defaultPosition(.topTrailing)
-        .commands {
-            // Nothing to "create" in this app — hide the default New menu.
-            CommandGroup(replacing: .newItem) {}
-        }
-
-        // MARK: - Settings (real UI, Phase 2.1)
-        //
-        // SwiftUI's `Settings` scene gives us the standard ⌘, affordance
-        // and a system-managed Settings window — no custom Window plumbing
-        // required. v1.0 SettingsView is intentionally minimal: just the
-        // "auto-copy to clipboard" toggle (DR-020) plus an About card.
-        // Future versions will expand here as new features land.
+        // MARK: - Settings (system-managed window, ⌘, opens it)
         Settings {
             SettingsView()
                 .environmentObject(settings)
@@ -81,33 +38,19 @@ struct VoxAIApp: App {
 
         // MARK: - Menu bar
         //
-        // Because Info.plist has LSUIElement = YES (menu-bar app, no Dock
-        // icon), this is the user's only re-entry point once they close
-        // the floating dialog. v1.7 keeps it minimal: state-aware icon +
-        // "Show Dialog" + "Quit". Phase 2.7 will add a Settings link and
-        // Phase 2.8 will add error-state badging.
+        // The only re-entry point because Info.plist has LSUIElement = YES
+        // (no Dock icon). Triggers AppDelegate.showDialog() to bring the
+        // panel back when the user has closed it.
         MenuBarExtra {
             MenuBarContent(
                 state: transcriptionService.state,
                 hasError: transcriptionService.lastError != nil,
-                onShowDialog: { openWindow(id: "dialog") }
+                onShowDialog: { appDelegate.showDialog() }
             )
         } label: {
-            // Why an SF Symbol here instead of `VoxAILogoMark`:
-            //   The menu bar pipeline expects a simple template image —
-            //   it rasterizes label content into a small monochrome bitmap
-            //   and applies the system's menu-bar tint. VoxAILogoMark is a
-            //   composition of many tiny SwiftUI shapes (mic yoke, two
-            //   sparkles, four waveform bars, ring, capsule) plus
-            //   `Color.primary`, which doesn't always resolve correctly in
-            //   the menu-bar context. Net result: at 18px the whole icon
-            //   sometimes renders blank — visible in Rebecca's smoke test
-            //   where the icon disappeared from the bar entirely.
-            //
-            // SF Symbols are designed for this surface: clean glyph,
-            // automatic template tinting, weight that matches the bar.
-            // We still use the rich VoxAILogoMark inside the dialog
-            // title bar where 28px and full color rendering makes sense.
+            // SF Symbol — see comment in earlier commit; the menu bar
+            // pipeline doesn't render arbitrary SwiftUI compositions
+            // reliably at small sizes.
             Image(systemName: menuBarSymbol)
                 .accessibilityLabel(menuBarAccessibilityLabel(for: transcriptionService.state))
         }
@@ -162,10 +105,9 @@ private struct MenuBarContent: View {
         .keyboardShortcut("d", modifiers: [.command, .shift])
 
         // Settings entry point.
-        // SettingsLink is macOS 14+ — gives us a button that opens the
-        // Settings scene with the standard ⌘, shortcut. On macOS 13 we
-        // fall back to manually invoking the standard "showSettingsWindow:"
-        // Cocoa selector, which the Settings scene wires up.
+        // SettingsLink (macOS 14+) gets us the standard ⌘, shortcut wiring;
+        // on macOS 13 we fall back to the named selector that the Settings
+        // scene registers.
         if #available(macOS 14, *) {
             SettingsLink {
                 Label("设置 / Settings", systemImage: "gearshape")
@@ -227,6 +169,3 @@ private struct MenuBarContent: View {
         }
     }
 }
-
-// SettingsPlaceholderView was removed in Phase 2.1 — replaced by the
-// real SettingsView in Views/SettingsView.swift.

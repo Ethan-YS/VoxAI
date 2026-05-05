@@ -27,114 +27,37 @@ import Combine
 // so the view can later hide it (close button) without holding the reference
 // inside the service layer.
 
-/// NSView subclass that tracks "this view just got attached to its window"
-/// and "the window just became key" — both key moments where we want to
-/// (re-)assert NSWindow configuration on the borderless floating dialog.
-///
-/// Why this and not `updateNSView`:
-///   `Window` (singleton scene) keeps the SAME NSView/NSWindow across
-///   hide/show cycles. SwiftUI calls `updateNSView` on every tick — way
-///   too often, including moments when SwiftUI/AppKit are themselves
-///   manipulating the window (Settings scene activation, etc.). Re-asserting
-///   styleMask/level inside those ticks raced against SwiftUI's own window
-///   management and left the dialog as a regular (non-floating) window.
-///
-///   AppKit's `viewDidMoveToWindow` + `didBecomeKeyNotification` fire at
-///   the EXACT moments we care about (window attached / window made key),
-///   never in the middle of SwiftUI's window plumbing. Far less noise,
-///   far more reliable.
-private final class WindowTrackingView: NSView {
-    /// Called whenever this view is attached to a window OR the window
-    /// becomes key. Should apply all the desired NSWindow configuration.
-    var configure: ((NSWindow) -> Void)?
-
-    private var keyObserver: NSObjectProtocol?
-
-    override func viewDidMoveToWindow() {
-        super.viewDidMoveToWindow()
-
-        // Tear down any prior observer (window may have changed).
-        if let existing = keyObserver {
-            NotificationCenter.default.removeObserver(existing)
-            keyObserver = nil
-        }
-
-        guard let w = window else { return }
-
-        // First-shot config (window just attached).
-        configure?(w)
-
-        // Re-config every time the user re-opens the window from the
-        // menu bar (window becomes key again). This is what fixes the
-        // "not floating after re-open" / "not draggable after re-open"
-        // class of bugs without polluting updateNSView.
-        keyObserver = NotificationCenter.default.addObserver(
-            forName: NSWindow.didBecomeKeyNotification,
-            object: w,
-            queue: .main
-        ) { [weak self] _ in
-            guard let w = self?.window else { return }
-            self?.configure?(w)
-        }
-    }
-
-    deinit {
-        if let keyObserver {
-            NotificationCenter.default.removeObserver(keyObserver)
-        }
-    }
-}
-
-private struct WindowAccessor: NSViewRepresentable {
-    @Binding var window: NSWindow?
-
-    func makeNSView(context: Context) -> NSView {
-        let view = WindowTrackingView()
-        view.configure = { w in
-            w.styleMask = [.borderless, .fullSizeContentView]
-            w.isOpaque = false
-            w.backgroundColor = .clear
-            // Drag-by-background: enables dragging the borderless window
-            // from any non-interactive surface.
-            w.isMovableByWindowBackground = true
-            // .floating: float above all normal windows in this and every
-            //            other app.
-            w.level = .floating
-            // .canJoinAllSpaces: visible regardless of which Space the
-            //                    user is currently on.
-            // .stationary: doesn't slide with Space transitions.
-            // .fullScreenAuxiliary: stays visible when other apps go
-            //                       fullscreen.
-            w.collectionBehavior = [
-                .canJoinAllSpaces,
-                .stationary,
-                .fullScreenAuxiliary,
-            ]
-            // Publish the window reference back to SwiftUI ONLY if it
-            // actually changed — `===` prevents a re-render loop where
-            // setting the binding triggers another updateNSView pass.
-            if window !== w {
-                DispatchQueue.main.async { window = w }
-            }
-        }
-        return view
-    }
-
-    func updateNSView(_ nsView: NSView, context: Context) {
-        // Intentionally empty.
-        // Configuration is asserted via WindowTrackingView's
-        // viewDidMoveToWindow + didBecomeKey observer. SwiftUI ticks
-        // don't drive window setup anymore.
-    }
-}
+// 2026-05-05 — WindowAccessor / WindowTrackingView removed.
+//
+// History:
+//   v1.7 onwards we hosted DialogView inside a SwiftUI `Window` scene
+//   and used a NSViewRepresentable trick to fish the underlying NSWindow
+//   out so we could set styleMask, level, collectionBehavior, etc. That
+//   approach SOMETIMES worked (Rebecca's smoke test in commit bc8cf4d
+//   confirmed floating). But it relied on winning a race against
+//   SwiftUI's own window plumbing, which kept resetting `.floating`
+//   back to `.normal` during state transitions.
+//
+//   Phase 2.x added a Settings scene and a lastError binding that
+//   triggered re-renders much more often. The race started losing
+//   reliably and the dialog stopped floating.
+//
+//   Replacement (in AppDelegate.swift):
+//     The dialog window is now an NSPanel built directly in AppDelegate.
+//     `isFloatingPanel = true` is an OS-level commitment that SwiftUI
+//     does not override. DialogView is hosted inside the panel via
+//     NSHostingController. The panel's lifecycle is managed by
+//     DialogPanelController (an EnvironmentObject), and the close
+//     button calls `dialogController.close()` instead of poking
+//     window?.orderOut(nil).
 
 // MARK: - DialogView
 
 struct DialogView: View {
     @EnvironmentObject private var ts: TranscriptionService
     @EnvironmentObject private var settings: AppSettings
+    @EnvironmentObject private var dialogController: DialogPanelController
 
-    @State private var window: NSWindow?
     @State private var copyFlash = false        // brief checkmark state on copy
 
     /// Bound to `ts.lastError != nil`. Errors flow through a single
@@ -174,7 +97,6 @@ struct DialogView: View {
                 }
             }
             .frame(width: 420, height: 420)
-            .background(WindowAccessor(window: $window))
             .onAppear { wireServiceCallbacks() }
             .alert(
                 errorAlertTitle,
@@ -316,7 +238,9 @@ struct DialogView: View {
         if ts.state != .idle {
             ts.stopListening()
         }
-        window?.orderOut(nil)
+        // Hand off to the panel controller (AppDelegate owns the actual
+        // NSPanel; DialogView never directly touches the window).
+        dialogController.close()
     }
 }
 

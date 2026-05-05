@@ -70,6 +70,12 @@ enum RecordingState: Equatable {
 @MainActor
 final class TranscriptionService: ObservableObject {
 
+    /// Process-wide singleton shared by AppDelegate (which constructs the
+    /// NSPanel for the dialog) and any SwiftUI scene that needs to read
+    /// the same state. Lazy-initialized on first access.
+    static let shared = TranscriptionService(settings: .shared)
+
+
     // MARK: Published
 
     @Published private(set) var state: RecordingState = .idle
