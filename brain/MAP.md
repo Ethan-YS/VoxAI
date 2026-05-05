@@ -39,13 +39,16 @@ grep -rn "⚠️ 待填 ⚠️" brain/   # 应只在 HANDOFF.md / topics 子 REA
 | 模块 | 职责 | 状态 | 主要位置 |
 |---|---|---|---|
 | Xcode 工程骨架 | 项目文件 + entitlements + Info.plist | ✅ Phase 1.1 完成（2026-05-03） | `VoxAI.xcodeproj/`、`VoxAI/VoxAI.entitlements` |
-| `TranscriptionService` | ASR（SFSpeechRecognizer + AVAudioEngine + sessionGeneration 防过期回调） | ✅ Phase 1.5 完成（2026-05-03） | `VoxAI/Services/TranscriptionService.swift` |
-| `AppSettings` | 配置（UserDefaults） | ✅ Phase 1.4 完成（2026-05-03） | `VoxAI/Models/AppSettings.swift` |
-| `DialogView` | 悬浮录音窗 + 歌词渲染 + 自动复制剪贴板（三态 UI） | ✅ Phase 1.6 完成（2026-05-03） | `VoxAI/Views/DialogView.swift` |
-| `MenuBarContent` | 菜单栏图标 + 状态行 + Show Dialog + Quit | ✅ Phase 1.7 完成（基础版）；Phase 2.3 加错误状态 badge | `VoxAI/VoxAIApp.swift` 内 |
-| `VoxAILogoMark` | logo 渲染（DialogView 标题 + MenuBarExtra label 共用）| ✅ 已实现 | `VoxAI/Views/DialogView.swift` 内 |
-| `VoxAIApp` | 主入口 + 3 Scenes + DI | ✅ Phase 1.7 完成（2026-05-03） | `VoxAI/VoxAIApp.swift` |
-| `SettingsView`（v1.0 极简版） | 设置面板：autoCopy 开关 + 关于 | ⏳ Phase 2.1 实现 | 当前 `VoxAI/VoxAIApp.swift` 内 `SettingsPlaceholderView` |
+| `TranscriptionService` | ASR（SFSpeechRecognizer + AVAudioEngine + sessionGeneration 防过期回调） | ✅ Phase 1.5 完成 | `VoxAI/Services/TranscriptionService.swift` |
+| `AppSettings` | 配置（UserDefaults） | ✅ Phase 1.4 完成 | `VoxAI/Models/AppSettings.swift` |
+| `DialogView` | 浮窗内容（歌词渲染 + 三态 UI + 自动复制剪贴板） | ✅ Phase 1.6 完成 | `VoxAI/Views/DialogView.swift` |
+| **`AppDelegate`** | **NSPanel 生命周期 + 应用启动 sweep + 重新打开浮窗**（DR-025 替代 SwiftUI Window scene） | ✅ Phase 2.x 完成（2026-05-05） | `VoxAI/AppDelegate.swift` |
+| **`VoxAIPanel`** | NSPanel 子类，重写 `canBecomeKey = true` 让 borderless panel 接受键盘输入 | ✅ Phase 2.x 完成 | `VoxAI/AppDelegate.swift` 内 |
+| **`DialogPanelController`** | EnvironmentObject 桥梁——DialogView 关闭按钮 → `panel.orderOut(nil)` | ✅ Phase 2.x 完成 | `VoxAI/AppDelegate.swift` 内 |
+| `MenuBarContent` | 菜单栏图标 + 状态行 + Show Dialog + Settings + Quit + 错误 badge | ✅ Phase 2.3 完成 | `VoxAI/VoxAIApp.swift` 内 |
+| `VoxAILogoMark` | logo 渲染（DialogView 标题位置已被 AppIcon image 取代；MenuBarExtra 也回到 SF Symbol。这个组件保留备 v1.x preview / future use） | ⚠️ 保留但不使用 | `VoxAI/Views/DialogView.swift` 内 |
+| `VoxAIApp` | 主入口 + 2 SwiftUI Scenes（Settings / MenuBarExtra）+ `@NSApplicationDelegateAdaptor` | ✅ Phase 1.7 + 2.x 重构 | `VoxAI/VoxAIApp.swift` |
+| `SettingsView` | v1.0 极简：autoCopy toggle + About + 隐私政策 / GitHub 链接 + v1.x 占位提示 | ✅ Phase 2.1 完成 | `VoxAI/Views/SettingsView.swift` |
 
 ### v1.0 不实现（DR-021 / DR-022 切片砍掉，留 v1.1+）
 
@@ -57,19 +60,36 @@ grep -rn "⚠️ 待填 ⚠️" brain/   # 应只在 HANDOFF.md / topics 子 REA
 | ~~`OpenAITTSClient`~~ | ❌ 砍掉 | DR-021 |
 | ~~`KeychainHelper`~~ | ❌ 砍掉 | 没 Cloud TTS 不需要存 API Key |
 
-## 三、模块依赖关系（v1.0 切片版）
+## 三、模块依赖关系（v1.0 切片 + DR-025 NSPanel 改造后）
 
 ```
-DialogView ──→ TranscriptionService ──→ AppSettings
-          └─→ NSPasteboard.general (录音停止时自动写入，DR-020)
+VoxAIApp (@main, App 协议)
+  ├─→ @NSApplicationDelegateAdaptor → AppDelegate
+  │                                     ├─→ VoxAIPanel (NSPanel, isFloatingPanel=true)
+  │                                     │     └─→ NSHostingView<DialogView>
+  │                                     │           └─→ DialogView (SwiftUI)
+  │                                     │                 ├─→ TranscriptionService.shared
+  │                                     │                 ├─→ AppSettings.shared
+  │                                     │                 ├─→ DialogPanelController (close 钩子)
+  │                                     │                 └─→ NSPasteboard.general (DR-020 自动复制)
+  │                                     └─→ DialogPanelController
+  ├─→ Settings scene → SettingsView
+  │                       └─→ AppSettings.shared
+  └─→ MenuBarExtra scene → MenuBarContent
+                              ├─→ AppDelegate.showDialog() (Show Dialog 入口)
+                              └─→ TranscriptionService.shared (状态展示)
 
-SettingsView ──→ AppSettings (Phase 2.1 实现)
-
-VoxAIApp ──→ 启动时初始化 AppSettings + TranscriptionService(settings:)
-         └─→ 3 个 Scene：dialog / Settings / MenuBarExtra
+TranscriptionService.shared ──→ AppSettings.shared
+                            ──→ AVAudioEngine
+                            ──→ SFSpeechRecognizer
 ```
 
-无循环依赖，无 TTS / MCP / Cloud / Keychain 模块——v1.0 切片副作用：架构最小化。完整数据流见 `topics/systems/ARCHITECTURE.md`。
+**关键变化（vs Phase 1.7 设计）**：
+- 浮窗不再是 SwiftUI `Window` scene，由 AppDelegate 的 NSPanel 持有
+- `TranscriptionService` 加 `static let shared`，让 AppDelegate 创建 NSPanel 时能注入同一实例
+- 关闭按钮通过 `DialogPanelController` 而非直接拿 NSWindow
+
+无循环依赖，无 TTS / MCP / Cloud / Keychain 模块。完整数据流和决策原因见 `topics/systems/ARCHITECTURE.md` + DECISIONS DR-025。
 
 ## 四、接续层五份核心（brain/ 直接子文件）
 
@@ -141,8 +161,16 @@ VoxAIApp ──→ 启动时初始化 AppSettings + TranscriptionService(setting
 | `ROADMAP.md` | 短索引 | 同上，指向 `brain/topics/planning/ROADMAP.md` |
 | `.references/swift-sdk/` | Phase 0 验证产物 | 本地 clone 的 MCP SDK，验证用，不进 build；`.gitignore` 已排除 |
 | `LICENSE` | ✅ 已建 | MIT 全文（2026-05-02 创建，DR-013/DR-017） |
+| `AGENTS.md` | ✅ 已建 | Codex 项目入口（≡ CLAUDE.md 内容，两者保持镜像）|
+| `README.md` | ✅ 已建 | 用户文档（Phase 3.5 完成，中英双语）|
 | `VoxAI.xcodeproj/` | ✅ 已建 | Xcode 项目（2026-05-03 Phase 1.1） |
-| `VoxAI/` | ✅ 已建 | App 源码目录（默认 SwiftUI 模板，待 Phase 1.5-1.7 重写） |
+| `VoxAI/` | ✅ 已建 | App 源码目录（DR-025 之后含 AppDelegate.swift） |
+| `docs/` | ✅ 已建 | 隐私政策网页 + 截图素材（Phase 4 / GitHub Pages source） |
+| `docs/privacy.html` | ✅ LIVE | https://ethan-ys.github.io/VoxAI/privacy.html（双语）|
+| `docs/screenshots/asc-{1,2,3}-*.png` | ✅ 已建 | App Store Connect 截图（3024×1964）|
+| `docs/screenshots/ui-{idle,recording,finished}.png` | ✅ 已建 | README 用浮窗局部素材（840×840）|
+| `build/` | git ignored | xcodebuild 产物：archive / Export / 上传包 |
+| `.references/swift-sdk/` | git ignored | Phase 0 调研用 swift-sdk clone（v1.0 不需要，留 v1.1 reference） |
 | `README.md` | 待建 | Phase 4.6 创建用户文档 |
 | `VoxAI.xcodeproj/` | 待建 | Phase 1.1 创建 |
 | `VoxAI/` | 待建 | Phase 1.1 创建（App 源码） |

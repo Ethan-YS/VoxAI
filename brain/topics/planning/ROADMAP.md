@@ -132,12 +132,12 @@
 
 | # | 任务 | 备注 |
 |---|---|---|
-| 4.1 | ✅ App Icon 已集成（Codex 生成，全套 16-1024 已进 Assets.xcassets，2026-05-04 commit ff0b55a）|  |
-| 4.2 | App Store 截图（13" + 16" 各一组，至少 3 张：浮窗待机 / 录音中歌词 / 录音停止 transcript 状态）| Apple Silicon 上拍 |
-| 4.3 | 应用描述（**主推中文**）+ 关键词 + 类别 | 详见 `topics/operations/APP_STORE_CHECKLIST.md` |
-| 4.4 | 隐私政策网页（**Sage 做**，托管 GitHub Pages，仓库下 `docs/privacy.html`）| 必写：VoxAI 本身不收集；ASR 由 Apple SFSpeechRecognizer 处理可能经 Apple 服务器（DR-018）；剪贴板写入（DR-020）|
-| 4.5 | App Store Connect 创建 record（**Rebecca 操作**——账户登录步骤）→ Sage 准备 archive → upload → 提审 | |
-| 4.6 | App Review Notes（**极简版**——MCP 砍了不用解释 server，只需说明麦克风用途 + Apple 系统语音识别）| DR-022 让审核风险大幅降低 |
+| 4.1 | ✅ App Icon 已集成（Codex 生成，全套 16-1024 + 1024 单独 source，commit ff0b55a）|  |
+| 4.2 | ✅ App Store 截图 3 张已就绪（3024×1964，commit ba764b7）—— `docs/screenshots/asc-{1-floating,2-recording,3-finished}.png`，3 张连成"桌面悬浮 → 用嘴对 Claude 说话 → 自动复制完成"故事 | |
+| 4.3 | ✅ 应用描述 + 关键词 + 类别——草稿在 `topics/operations/ASC_SUBMISSION_DRAFTS.md` §1-§7 | |
+| 4.4 | ✅ 隐私政策网页——`docs/privacy.html` 中英双语 + dark mode；GitHub Pages LIVE 在 `https://ethan-ys.github.io/VoxAI/privacy.html`（HTTP 200 验证通过）| |
+| 4.5 | ⏳ **进行中**：等 Rebecca 在 ASC 创建 app record（中国账号 `hrebeccaqy@icloud.com` 无痕窗口）→ Sage 跑 archive (`method=app-store`) + upload → 填字段（草稿全在 ASC_SUBMISSION_DRAFTS.md）→ Submit | Notarize toolchain 已经在 Phase 3 朋友测试时端到端预演过，换 method 即可 |
+| 4.6 | ✅ App Review Notes 极简版——在 `ASC_SUBMISSION_DRAFTS.md` §8 | DR-022 砍 MCP 后审核风险大幅降低 |
 
 ### DoD
 
@@ -148,13 +148,13 @@
 
 ## 总工期重估（2026-05-04 切片后）
 
-| Phase | 原估 | 切片后 | 变化原因 |
-|---|---|---|---|
-| Phase 1（已完成） | 5-7 天 | 实际 1 天 | Sage 接管所有 Xcode 配置 + Rebecca 仅做 GUI 创建 |
-| Phase 2 | 5-7 天 | **~2 天** | 砍 TTS / MCP / Cloud / Keychain |
-| Phase 3 | 3-5 天 | **~2 天** | 砍单元测试（无 TTS/MCP 协议要测）+ 错误反馈合并到 Phase 2 |
-| Phase 4 | 3-5 天 | **~2-3 天** | 砍 MCP Review Notes 解释，资产更聚焦 |
-| **总计** | **~4 周** | **~6-7 天** | 切片到 MVP |
+| Phase | 原估 | 切片后 | 实际 | 变化原因 |
+|---|---|---|---|---|
+| Phase 1 | 5-7 天 | — | **1 天**（2026-05-03） | Sage 接管所有 Xcode 配置 + Rebecca 仅做 GUI 创建 |
+| Phase 2 | 5-7 天 | ~2 天 | **2 天**（2026-05-03 ~ 05-05） | 切片砍 TTS / MCP / Cloud / Keychain；末段 NSPanel 大重构（DR-025）拖了 0.5 天但解决了根因 |
+| Phase 3 | 3-5 天 | ~2 天 | **0.5 天**（2026-05-05） | Notarize toolchain 顺手在朋友测试时跑通；Intel Mac 一次过 |
+| Phase 4 | 3-5 天 | ~2-3 天 | 进行中 ~1 天（剩 ASC submission） | 大部分 Phase 4 任务和 Phase 3 / GitHub 重组并行做了 |
+| **总计** | **~4 周** | **~6-7 天** | **~3.5 天到 RC** | 切片到 MVP + 工作流并行 |
 
 ---
 

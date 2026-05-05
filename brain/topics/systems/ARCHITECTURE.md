@@ -5,48 +5,90 @@
 > **谁该读**：要动 ASR / DialogView / Settings 任何模块前。
 > **不该读**：找具体决策原因 → 看 `DECISIONS.md`；找 Sandbox entitlement 配置 → 看 `SANDBOX.md`。
 >
-> **v1.0 范围说明**（2026-05-04 切片）：原计划的 MCP server / TTS / Cloud 整套已砍（DR-021 / DR-022）。本文件描述的是 **v1.0 ASR-only MVP** 架构。v1.1+ 重新引入这些模块时，参考第八节"v1.1+ 预留设计"。
+> **v1.0 范围说明**：
+> - 2026-05-04 切片（DR-021 / DR-022）：MCP server / TTS / Cloud 整套已砍
+> - 2026-05-05 大改（DR-025）：浮窗从 SwiftUI `Window` scene 迁移到 NSPanel + AppDelegate（解决 macOS 26 + LSUIElement 下 `.floating` 不可靠）
+> - v1.1+ 重启 SwiftUI Window scene 路径或重启 MCP / TTS 时，参考第八节"v1.1+ 预留设计"
 
 ---
 
-## 一、整体架构图（v1.0）
+## 一、整体架构图（v1.0，DR-025 NSPanel 路径）
 
 ```
-┌─────────────────────────────────────────────────┐
-│             VoxAI.app (sandboxed)                │
-│                                                  │
-│  ┌────────────────────┐                          │
-│  │ TranscriptionSvc   │   ← 核心：ASR + 续接     │
-│  │ SFSpeechRecognizer │                          │
-│  │ AVAudioEngine      │                          │
-│  └────────┬───────────┘                          │
-│           │ @Published 状态                      │
-│           ▼                                      │
-│  ┌────────────────────┐    ┌──────────────────┐  │
-│  │ DialogView         │───→│ NSPasteboard     │  │
-│  │ 浮窗 + 歌词渲染    │    │ (录音停止时写入) │  │
-│  └────────────────────┘    └──────────────────┘  │
-│           │                                      │
-│           ▼                                      │
-│  ┌────────────────────┐                          │
-│  │ AppSettings        │   (UserDefaults)         │
-│  │ (autoCopy 开关等)  │                          │
-│  └────────────────────┘                          │
-│                                                  │
-│  ┌────────────────────┐                          │
-│  │ MenuBarExtra       │   ← 菜单栏图标 + 状态机  │
-│  │ (Show Dialog/Quit) │                          │
-│  └────────────────────┘                          │
-└──────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────┐
+│            VoxAI.app (sandboxed)                      │
+│                                                       │
+│  VoxAIApp (@main)                                     │
+│   ├─ @NSApplicationDelegateAdaptor → AppDelegate     │
+│   │                                    │              │
+│   │                                    ▼              │
+│   │                          ┌──────────────────┐    │
+│   │                          │ VoxAIPanel       │    │
+│   │                          │ (NSPanel)        │    │
+│   │                          │  isFloatingPanel │    │
+│   │                          │     = true       │    │
+│   │                          │  hasShadow=true  │    │
+│   │                          └────────┬─────────┘    │
+│   │                                   │ NSHostingView│
+│   │                                   ▼              │
+│   │                          ┌──────────────────┐    │
+│   │                          │ DialogView       │    │
+│   │                          │ (SwiftUI)        │    │
+│   │                          │ 歌词 + 三态 UI   │    │
+│   │                          └─┬─────┬─────┬────┘    │
+│   │                            │     │     │          │
+│   │              ┌─────────────┘     │     └────┐    │
+│   │              ▼                   ▼          ▼    │
+│   │      TranscriptionService   AppSettings  NSPaste-│
+│   │      (.shared)              (.shared)    board   │
+│   │       │ SFSpeechRecognizer                       │
+│   │       │ AVAudioEngine                            │
+│   │       │ sessionGeneration                        │
+│   │                                                   │
+│   ├─ Settings scene                                   │
+│   │    └─ SettingsView                                │
+│   │         └─ AppSettings.shared                     │
+│   │                                                   │
+│   └─ MenuBarExtra scene                               │
+│        └─ MenuBarContent                              │
+│             ├─→ AppDelegate.showDialog()              │
+│             └─→ TranscriptionService.shared (state)   │
+│                                                       │
+└───────────────────────────────────────────────────────┘
                   │
-                  │ 用户切到 Claude Code → ⌘V
+                  │ 用户停止录音 → 自动写剪贴板 → 切到 Claude → ⌘V
                   ▼
             外部 AI 工具的输入框
 ```
 
+**为什么不再是 SwiftUI Window scene 持有浮窗**：见 DECISIONS DR-025。一句话：SwiftUI 的 `Window` scene 在 macOS 26 + LSUIElement = YES 下，`.floating` window level 会被 SwiftUI 内部窗口管理在某些 state transitions 时重置回 `.normal`。NSPanel 的 `isFloatingPanel = true` 是 OS 级承诺，没有这个 race。
+
 **关键**：v1.0 **没有外部 IPC**——所有数据流都在 VoxAI.app 内部 + 通过 macOS 系统剪贴板传给其他 app。这是审核最简单的形态。
 
 ## 二、模块职责（v1.0）
+
+### AppDelegate（v1.0 的浮窗主管）— 2026-05-05 DR-025 引入
+
+`VoxAI/AppDelegate.swift`，~130 行。三个 type：
+
+- **`AppDelegate: NSApplicationDelegate`**：在 `applicationDidFinishLaunching` 时构建 NSPanel + show 出来；监听 `applicationShouldHandleReopen` 让用户从菜单栏 / Dock 重启 app 时自动 show 浮窗。同时**sweep 启动时被 SwiftUI 误开的 Settings 窗口**（LSUIElement = YES + 没有主 Window scene 时 SwiftUI 启发式行为）
+- **`VoxAIPanel: NSPanel`**：自定义子类，重写 `canBecomeKey = true` 让 borderless panel 接受键盘输入，`canBecomeMain = false` 让标准菜单仍指 NSApp 而非这个浮窗
+- **`DialogPanelController: ObservableObject`**：作为 EnvironmentObject 注入 DialogView，DialogView 关闭按钮调 `.close()` 而不是直接持有 NSWindow
+
+NSPanel 关键配置：
+```swift
+panel.isFloatingPanel = true          // OS 级 floating 承诺
+panel.becomesKeyOnlyIfNeeded = true   // 点浮窗不抢焦点
+panel.hidesOnDeactivate = false        // 切其他 app 不隐藏
+panel.level = .floating
+panel.collectionBehavior = [.canJoinAllSpaces, .stationary, .fullScreenAuxiliary]
+panel.styleMask = [.borderless, .fullSizeContentView, .nonactivatingPanel]
+panel.isOpaque = false; panel.backgroundColor = .clear
+panel.hasShadow = true   // 让 macOS 跟随 SwiftUI RoundedRectangle alpha 画圆角阴影
+panel.isMovableByWindowBackground = true  // 拖动 by background
+```
+
+DialogView 通过 `NSHostingView`（不是 NSHostingController！）嵌入 panel.contentView，加 `.width / .height` autoresizing 让 SwiftUI 内容充满整个 panel。
 
 ### TranscriptionService（核心 ASR 引擎）
 - **核心**：`SFSpeechRecognizer` + `AVAudioEngine`
