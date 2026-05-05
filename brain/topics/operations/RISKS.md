@@ -17,27 +17,19 @@
 
 ## R-001 用户填的第三方 TTS 服务挂掉 / 改协议
 
-🟡 **已识别但未触发**
+🟢 **已规避（2026-05-04 切片）**
 
-**影响**：用户配的 Cloud TTS 调用失败，朗读功能不可用。
+**原始影响**：用户配的 Cloud TTS 调用失败，朗读功能不可用。
 
-**缓解方案**：
-- `OpenAITTSClient` 给清晰错误提示（不是默默失败）
-- **System TTS 始终可用作 fallback**——用户切回 System 模式立即恢复
-- Settings 里 "Test Connection" 按钮帮用户排错
-
-**触发条件**：用户报"speak 不出声"且 System 模式正常。
+**规避路径**：DR-021 v1.0 砍 TTS。整个 OpenAITTSClient 不写，无外部 TTS 服务依赖。v1.1 如果重新引入 Cloud TTS，重新激活此风险。
 
 ## R-002 苹果审核拒绝 MCP HTTP server
 
-🟡 **已识别但未触发**
+🟢 **已规避（2026-05-04 切片）**
 
-**影响**：上架失败，可能要重大改动。
+**原始影响**：上架失败，可能要重大改动。
 
-**应对**：
-- 苹果不禁止 localhost server（开发工具普遍如此），但要在 App Review Notes 解释清楚用途（参考 `APP_STORE_CHECKLIST.md` 第四节模板）
-- 万一被拒，先在 Resolution Center 答辩；如果坚持拒，考虑改用 `Network.framework` 的 `NWListener`（Apple 原生路径）
-- 极端情况：去掉 MCP server，改成 stdio CLI helper（但 Sandbox 下 Claude Code 调不到，等于功能阉割）—— **这条是最坏退路**
+**规避路径**：DR-022 v1.0 砍 MCP server。整个 MCPServer.swift 不写，无 HTTP/SSE listener，entitlements 不含 `network.server`。审核员看不到任何 server 行为，本风险消失。v1.1 如果重新引入 MCP server，重新激活此风险并启用原应对方案（Review Notes 解释开发工具行业惯例 + Network.framework fallback）。
 
 ## R-003 Intel Mac 用户体验差
 
@@ -63,15 +55,16 @@
 
 ## R-005 Sandbox 下 SwiftNIO 绑定 localhost 端口失败
 
-🟡 **已部分验证**
+🟢 **已规避（2026-05-04 切片）**
 
-**影响**：MCP server 起不来，整个核心功能挂掉。
+**原始影响**：MCP server 起不来，整个核心功能挂掉。
 
-**已有验证**：Phase 0.3 SPM 路径（无 Sandbox）实测通过（DECISIONS TD-005）。
+**规避路径**：DR-022 v1.0 砍 MCP server，不引入 SwiftNIO，不绑定任何端口。entitlements 不含 `network.server`。
 
-**未验证**：真 Sandbox 内绑定。Phase 2 Xcode 工程接入后才能彻底验。
-
-**fallback 方案**：如果 SwiftNIO 在 Sandbox 下有问题，改用 `Network.framework` 的 `NWListener`——Apple 原生，Sandbox 兼容性最佳，但要自己写 HTTP/1.1 + SSE 编码（多 ~500 行代码）。
+**v1.1 重新引入时**：
+- Phase 0.3 SPM 路径（无 Sandbox）实测通过（TD-005）—— 资产保留在 `.references/swift-sdk/`
+- 真 Sandbox 内绑定仍需重新验证（未做过）
+- fallback 方案保留：如果 SwiftNIO 在 Sandbox 下有问题，改用 `Network.framework` 的 `NWListener`（Apple 原生，Sandbox 兼容性最佳，但要自己写 HTTP/1.1 + SSE 编码 ~500 行）
 
 ## R-006 Xcode 16.x universal binary bug（FB17019201）
 
@@ -87,6 +80,16 @@
 **结论**：Xcode 16.1/16.2 的 universal binary bug 在 Xcode 26.x 已修复或绕过，VoxAI 在当前工具链上不会触发此风险。如果未来切到 Xcode 16.x 老版本或者遇到 archive 路径异常，需重新评估。
 
 ## R-007 第三方依赖许可证踩雷
+
+🟢 **已规避（2026-05-04 切片）**
+
+**规避路径**：DR-021 / DR-022 砍 TTS + MCP server 后，v1.0 不引入任何第三方 SPM 依赖（swift-sdk / SwiftNIO 都不要）。VoxAI v1.0 只依赖 Apple SDK（Speech / AVFoundation / SwiftUI / AppKit / Combine / Foundation），无许可证冲突可能。
+
+**v1.1 重新引入第三方依赖时**：每个新依赖都登记到 LICENSE_AUDIT.md，按原应对方案审 GPL/AGPL/copyleft 风险。
+
+---
+
+### 历史背景（pre-切片，保留参考）
 
 🟡 **已识别，待 Phase 1 完成审计**
 
@@ -119,15 +122,11 @@
 
 ## R-009 用户 OpenAI API Key 安全泄漏
 
-🟡 **已识别但未触发**
+🟢 **已规避（2026-05-04 切片）**
 
-**影响**：用户 key 被窃取造成经济损失。
+**原始影响**：用户 key 被窃取造成经济损失。
 
-**缓解**：
-- API Key 存 macOS Keychain（不落 UserDefaults / 不写日志）
-- mcp-config.json 文件权限 600（即使读到也只是 token，不是 OpenAI key）
-- 隐私政策明确告知：key 仅本地，不上传任何服务器
-- VoxAI 自己**永远不发起任何调用到 voxai.com 或类似域名**——避免任何"我们其实在收集 key"的怀疑
+**规避路径**：DR-021 v1.0 砍 Cloud TTS，不需要任何用户 API Key。Keychain 不存任何敏感数据。v1.1 重新引入 Cloud TTS 时重新激活此风险并启用原缓解方案（Keychain + 不写日志 + 不连任何 voxai.com）。
 
 ## R-010 ASR 在嘈杂环境识别率低导致差评
 
@@ -146,13 +145,13 @@
 
 | ID | 主题 | 状态 | 主要应对 |
 |---|---|---|---|
-| R-001 | Cloud TTS 服务挂 | 🟡 | System fallback 始终可用 |
-| R-002 | App Review 拒 MCP server | 🟡 | Notes 提前解释 |
+| R-001 | Cloud TTS 服务挂 | 🟢 | DR-021 砍 TTS，v1.0 已规避 |
+| R-002 | App Review 拒 MCP server | 🟢 | DR-022 砍 MCP，v1.0 已规避 |
 | R-003 | Intel 性能差 | 🟢 | v1 无 NN，已消解 |
-| R-004 | MCP 协议演进 | 🟡 | 用官方 SDK 跟进 |
-| R-005 | Sandbox 绑端口失败 | 🟡 | NWListener fallback |
+| R-004 | MCP 协议演进 | 🟢 | DR-022 砍 MCP，v1.0 不依赖 MCP 协议 |
+| R-005 | Sandbox 绑端口失败 | 🟢 | DR-022 砍 MCP，v1.0 不绑端口 |
 | R-006 | Xcode universal bug | 🟢 | Phase 1.1 实测未复现，已消解 |
-| R-007 | 依赖许可证踩雷 | 🟡 | Phase 1 完成审计 |
+| R-007 | 依赖许可证踩雷 | 🟢 | DR-021/022 砍 TTS+MCP 后无第三方 SPM 依赖；只用 Apple SDK |
 | R-008 | v1 用户量低 | 🟡 | 旧 VoxSage 引流 |
-| R-009 | API Key 泄漏 | 🟡 | Keychain + 不写日志 |
+| R-009 | API Key 泄漏 | 🟢 | DR-021 砍 Cloud TTS，v1.0 不存任何用户密钥 |
 | R-010 | 嘈杂环境识别率 | 🟡 | 定位"安静场景" |

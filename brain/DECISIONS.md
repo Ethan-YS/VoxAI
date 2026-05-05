@@ -37,6 +37,83 @@
 
 ---
 
+### 2026-05-04 — v1.0 不做"自动 paste 到下层 App"（DR-024）
+
+- **决定**：v1.0 不实现"录音停止后 VoxAI 模拟 ⌘V 把文字直接粘到当前活动 app"的功能。保持 DR-020 的剪贴板路径（用户自己 ⌘V）。v1.x 视用户反馈再加
+- **为什么**：
+  - 该功能需要 macOS Accessibility 权限，首次启动用户要在系统设置 → 隐私与安全性 → 辅助功能里手动添加 VoxAI——授权摩擦明显增加
+  - Sandbox 下 CGEvent 模拟键盘可能受限，要研究替代实现
+  - App Store 审核会问"为什么要 Accessibility"，多一道审核风险
+  - 当前 DR-020 已经把"用嘴编程"流程从 4 步压到 3 步（说话 → 切窗口 → ⌘V），自动 paste 只省一步，**边际收益不足以承担授权摩擦**
+- **被否决的替代方案**：
+  - **v1.0 立即做**：增加授权摩擦 + 审核风险，且没真用户反馈说一定要
+  - **永远不做**：太武断；如果用户反馈强烈要求，v1.x 加是合理的
+- **影响范围**：DialogView 不接 CGEvent；entitlements 不需要 Accessibility；用户体验 = 自动复制剪贴板 + 用户手动 ⌘V
+- **触发场景**：Rebecca 在 v1 范围审视时混淆了 MCP `speak` 和"自动 paste"，澄清后讨论是否做。她的拍板："如果是权限要求比较大，有摩擦的话，我们先也不做，但是可以留着之后做"
+
+---
+
+### 2026-05-04 — v1.0 不暴露语言切换 UI，默认 zh-CN（DR-023）
+
+- **决定**：v1.0 Settings 不提供"识别语言"切换。`AppSettings.recognitionLanguage` 字段保留但 UI 不暴露，默认就是 `zh-CN`（中文简体）
+- **为什么**：
+  - **目标市场是中文市场**——Claude Code 本身键盘支持英文输入，VoxAI 的差异化点是"中文语音输入到 AI"
+  - 英文用户用 Claude 自带键盘已经够用，VoxAI 对英文用户没有强吸引力
+  - 多一个开关 = 多一个让用户犯错的地方（中文用户误切到英文）
+  - SFSpeechRecognizer 的 zh-CN locale 实际也能识别用户偶尔说的英文短词，无需切换
+- **被否决的替代方案**：
+  - **保留切换 UI（auto / 中文 / 英文）**：增加复杂度，主市场用户用不到
+  - **完全删掉 AppSettings 的 recognitionLanguage 字段**：太激进；万一 v1.x 加切换还要重写。保留字段、不暴露 UI 是折中
+- **影响范围**：v1.0 Settings UI 不放语言切换；TranscriptionService 默认走 zh-CN；App Store 描述/关键词聚焦中文市场
+- **触发场景**：Rebecca 在 v1 范围审视时质疑"切换语言这个我们要支持几种语言吗？"，明确表态"我目前想到的市场是中文市场"
+
+---
+
+### 2026-05-04 — v1.0 砍掉 MCP HTTP server（DR-022）
+
+- **决定**：v1.0 不实现 MCP HTTP/SSE server。整个 `MCPServer.swift` / mcp-config.json / SwiftNIO / swift-sdk 依赖全部从 v1.0 范围移除。留 v1.1+ 看用户反馈是否需要
+- **为什么**：
+  - 在 DR-021 砍 TTS 后，MCP server 失去主要用途——MCP 4 个工具（speak / stop_speaking / list_voices / update_voice_config）全是 TTS 相关
+  - 没有 TTS 就没有让 Claude Code 调用 VoxAI 的工具
+  - 砍掉 MCP server **意外解锁多个简化**：
+    * 不需要 SwiftNIO（少 ~10MB 二进制依赖）
+    * 不需要 swift-sdk（modelcontextprotocol/swift-sdk）
+    * 不需要 `network.client` 和 `network.server` entitlement
+    * 不需要 mcp-config.json 持久化逻辑
+    * **App Review Notes 不需要解释"为什么有 HTTP server"**——审核风险大幅降低（MCP server 是新模式，审核员不熟）
+- **被否决的替代方案**：
+  - **保留 MCP server 但不暴露任何工具**：纯耗工程量、纯增审核风险，无价值
+  - **保留 MCP server + 实现非 TTS 工具**（比如让 Claude 拿剪贴板转录）：v1.0 范围已经太大，先发 MVP 看反馈
+- **影响范围**：
+  - **代码**：v1.0 不写 MCPServer.swift；entitlements 移除 network.client + network.server
+  - **依赖**：不引入 SwiftNIO / swift-sdk 任何 SPM 包
+  - **架构**：ARCHITECTURE.md 整个 MCPServer 部分移除
+  - **风险**：R-002（苹果审核拒 MCP server）→ 🟢 已规避；R-005（Sandbox SwiftNIO 绑端口失败）→ 🟢 已规避
+  - **审核**：极简 entitlements `[app-sandbox, audio-input]`，审核员一眼看清"语音输入工具"
+- **触发场景**：DR-021 拍板砍 TTS 后，MCP server 失去存在理由。Rebecca 拍板："TT 语音这个阶段我们暂时不做"
+
+---
+
+### 2026-05-04 — v1.0 砍掉 TTS（AI 朗读）功能（DR-021）
+
+- **决定**：v1.0 不实现任何 TTS 功能。`TTSEngine` / `SystemTTSEngine` / `OpenAITTSClient` 整套不写。留 v1.1 视用户需求决定是否做
+- **为什么**：
+  - **v1 主推"用嘴编程"已经在 DR-015 拍板**——TTS 一直是次要补充
+  - DR-015 拍板时 TTS 仍保留（因为"工程量已经不大"），但**v1 上架审视时 Rebecca 重新评估**："AI 朗读回复这个有点属于下一阶段吧，对于我们这个产品现在没有太大必要，好像还更复杂"
+  - **MVP 切片**：先验证"用嘴编程"主流程是否被市场需要，TTS 等用户反馈再做
+  - 砍掉 TTS 让 v1.0 工期从 ~4 周压到 ~1 周，能更早拿真用户反馈
+- **被否决的替代方案**：
+  - **保留 TTS 按 DR-015 设计实施**：增加 4-7 天工程量，且 Cloud TTS 引入 Keychain + API key UX，本质是次要功能挤占 MVP 时间
+  - **只保留 System TTS（AVSpeechSynthesizer）砍 Cloud**：System TTS 工程量虽小，但和"主推用嘴编程"定位无关，留 v1.1 一起做更聚焦
+- **影响范围**：
+  - 不写：`Services/TTSEngine.swift` / `SystemTTSEngine.swift` / `OpenAITTSClient.swift` / KeychainHelper
+  - 连锁：DR-022 砍 MCP server（TTS 没了 MCP 也没意义）
+  - **AppSettings 字段处理**：`ttsEngine` / `systemVoiceChinese` / `systemVoiceEnglish` / `cloudBaseURL` / `cloudModel` / `cloudVoice` / `cloudAPIKey` / `speechRate` 字段保留（避免删字段后 v1.1 重新加），但 v1.0 SettingsView 不暴露
+  - **App Store 描述**：聚焦"语音输入到 AI"，不再提"voice I/O bridge"
+- **触发场景**：v1 上架审视。Rebecca 在 v1 主流程跑通后重新评估范围。她的拍板："TT 语音这个阶段我们暂时不做"
+
+---
+
 ### 2026-05-02 — DialogView 录音停止后自动复制到剪贴板（DR-020）
 
 - **决定**：DialogView 检测到用户停止录音后，自动把转录文字写入 `NSPasteboard.general`，默认开启，Settings 给关闭开关

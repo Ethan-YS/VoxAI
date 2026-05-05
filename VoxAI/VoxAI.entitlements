@@ -2,13 +2,16 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTD/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<!-- v1.0 极简 entitlements (DR-021 砍 TTS / DR-022 砍 MCP 后) -->
 	<key>com.apple.security.app-sandbox</key>
 	<true/>
 	<key>com.apple.security.device.audio-input</key>
 	<true/>
+	<!-- v1.1 如果重新引入 Cloud TTS / MCP server，在这里加回：
 	<key>com.apple.security.network.client</key>
 	<true/>
 	<key>com.apple.security.network.server</key>
 	<true/>
+	-->
 </dict>
 </plist>

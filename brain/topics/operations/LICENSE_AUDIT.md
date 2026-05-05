@@ -20,15 +20,23 @@
 
 ## 二、VoxAI 引入的依赖
 
-### 2.1 已确认要用
+### 2.1 v1.0 实际引入的依赖（2026-05-04 切片后）
+
+**v1.0 不引入任何第三方 SPM 依赖**——只用 Apple 系统框架。这是 DR-021 / DR-022 切片的副产品。
+
+| 依赖 | v1.0 状态 | 备注 |
+|---|---|---|
+| 第三方 SPM packages | **0 个** | DR-021/022 砍 TTS + MCP 后无外部依赖需求 |
+
+### 2.1.1 v1.1+ 重启时会重新引入的依赖（保留参考）
 
 | 依赖 | 版本 | 许可证 | 兼容性 | 状态 |
 |---|---|---|---|---|
-| `modelcontextprotocol/swift-sdk` | v0.12.0 | MIT | ✅ MIT 兼容 MIT | ✅ 已审 |
-| `swift-nio` | 5.x | Apache 2.0 | ✅ Apache 2.0 兼容 MIT（需保留 NOTICE 文件） | ✅ 已审 |
-| `swift-system` | 1.x | Apache 2.0 | ✅ 同上（swift-sdk 间接依赖） | ✅ 已审 |
-| `swift-log` | 1.x | Apache 2.0 | ✅ 同上（swift-sdk 间接依赖） | ✅ 已审 |
-| `mattt/eventsource` | latest | MIT | ✅ MIT 兼容 MIT（swift-sdk 间接依赖） | ✅ 已审 |
+| `modelcontextprotocol/swift-sdk` | v0.12.0 | MIT | ✅ MIT 兼容 MIT | ⏸ v1.0 不引入；v1.1 重启 MCP 时引入 |
+| `swift-nio` | 5.x | Apache 2.0 | ✅ Apache 2.0 兼容 MIT（需保留 NOTICE 文件） | ⏸ 同上 |
+| `swift-system` | 1.x | Apache 2.0 | ✅ 同上（swift-sdk 间接依赖） | ⏸ 同上 |
+| `swift-log` | 1.x | Apache 2.0 | ✅ 同上（swift-sdk 间接依赖） | ⏸ 同上 |
+| `mattt/eventsource` | latest | MIT | ✅ MIT 兼容 MIT（swift-sdk 间接依赖） | ⏸ 同上 |
 
 ### 2.2 Apple 系统框架（不算第三方依赖）
 

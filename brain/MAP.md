@@ -39,35 +39,37 @@ grep -rn "⚠️ 待填 ⚠️" brain/   # 应只在 HANDOFF.md / topics 子 REA
 | 模块 | 职责 | 状态 | 主要位置 |
 |---|---|---|---|
 | Xcode 工程骨架 | 项目文件 + entitlements + Info.plist | ✅ Phase 1.1 完成（2026-05-03） | `VoxAI.xcodeproj/`、`VoxAI/VoxAI.entitlements` |
-| `MCPServer` | HTTP/SSE MCP server，绑 127.0.0.1:0 | ⏳ 设计完成，Phase 2 实现 | `VoxAI/Services/MCPServer.swift`（待建） |
-| `TTSEngine` | TTS 抽象 + 路由（System / Cloud） | ⏳ 设计完成，Phase 2 实现 | `VoxAI/Services/TTSEngine.swift`（待建） |
-| `SystemTTSEngine` | AVSpeechSynthesizer 包装 | ⏳ 设计完成，Phase 2 实现 | `VoxAI/Services/SystemTTSEngine.swift`（待建） |
-| `OpenAITTSClient` | HTTP POST `/audio/speech` 客户端 | ⏳ 设计完成，Phase 2 实现 | `VoxAI/Services/OpenAITTSClient.swift`（待建） |
 | `TranscriptionService` | ASR（SFSpeechRecognizer + AVAudioEngine + sessionGeneration 防过期回调） | ✅ Phase 1.5 完成（2026-05-03） | `VoxAI/Services/TranscriptionService.swift` |
-| `AppSettings` | 配置（UserDefaults + Keychain stub） | ✅ Phase 1.4 完成（2026-05-03） | `VoxAI/Models/AppSettings.swift` |
+| `AppSettings` | 配置（UserDefaults） | ✅ Phase 1.4 完成（2026-05-03） | `VoxAI/Models/AppSettings.swift` |
 | `DialogView` | 悬浮录音窗 + 歌词渲染 + 自动复制剪贴板（三态 UI） | ✅ Phase 1.6 完成（2026-05-03） | `VoxAI/Views/DialogView.swift` |
-| `SettingsView` | 设置面板 | ⏳ Phase 2.7 实现（v1.7 留 placeholder） | `VoxAI/VoxAIApp.swift` 内 `SettingsPlaceholderView`（待移到 `VoxAI/Views/SettingsView.swift`） |
-| `MenuBarContent` | 菜单栏图标 + 状态行 + Show Dialog + Quit | ✅ Phase 1.7 完成（基础版）；Phase 2.8 加错误状态 badge | `VoxAI/VoxAIApp.swift` 内 |
+| `MenuBarContent` | 菜单栏图标 + 状态行 + Show Dialog + Quit | ✅ Phase 1.7 完成（基础版）；Phase 2.3 加错误状态 badge | `VoxAI/VoxAIApp.swift` 内 |
+| `VoxAILogoMark` | logo 渲染（DialogView 标题 + MenuBarExtra label 共用）| ✅ 已实现 | `VoxAI/Views/DialogView.swift` 内 |
 | `VoxAIApp` | 主入口 + 3 Scenes + DI | ✅ Phase 1.7 完成（2026-05-03） | `VoxAI/VoxAIApp.swift` |
+| `SettingsView`（v1.0 极简版） | 设置面板：autoCopy 开关 + 关于 | ⏳ Phase 2.1 实现 | 当前 `VoxAI/VoxAIApp.swift` 内 `SettingsPlaceholderView` |
 
-## 三、模块依赖关系
+### v1.0 不实现（DR-021 / DR-022 切片砍掉，留 v1.1+）
+
+| 模块 | v1.0 状态 | 备注 |
+|---|---|---|
+| ~~`MCPServer`~~ | ❌ 砍掉 | DR-022；v1.1+ 视用户反馈重启 |
+| ~~`TTSEngine`~~ | ❌ 砍掉 | DR-021 |
+| ~~`SystemTTSEngine`~~ | ❌ 砍掉 | DR-021 |
+| ~~`OpenAITTSClient`~~ | ❌ 砍掉 | DR-021 |
+| ~~`KeychainHelper`~~ | ❌ 砍掉 | 没 Cloud TTS 不需要存 API Key |
+
+## 三、模块依赖关系（v1.0 切片版）
 
 ```
 DialogView ──→ TranscriptionService ──→ AppSettings
-                                       └─→ Keychain (无)
+          └─→ NSPasteboard.general (录音停止时自动写入，DR-020)
 
-SettingsView ──→ AppSettings
-            └─→ TTSEngine.testConnection (Cloud)
+SettingsView ──→ AppSettings (Phase 2.1 实现)
 
-MCPServer ──→ TTSEngine ──→ SystemTTSEngine
-          │                └─→ OpenAITTSClient ──→ AppSettings (Cloud config)
-          └─→ AppSettings (运行时配置变更)
-
-VoxAIApp ──→ 启动时初始化 MCPServer + AppSettings
-         └─→ 3 个 Scene：dialog / settings / menubar
+VoxAIApp ──→ 启动时初始化 AppSettings + TranscriptionService(settings:)
+         └─→ 3 个 Scene：dialog / Settings / MenuBarExtra
 ```
 
-完整数据流见 `topics/systems/ARCHITECTURE.md`。
+无循环依赖，无 TTS / MCP / Cloud / Keychain 模块——v1.0 切片副作用：架构最小化。完整数据流见 `topics/systems/ARCHITECTURE.md`。
 
 ## 四、接续层五份核心（brain/ 直接子文件）
 

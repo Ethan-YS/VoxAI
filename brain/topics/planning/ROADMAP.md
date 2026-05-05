@@ -79,78 +79,82 @@
 
 ---
 
-## Phase 2 — TTS + MCP + Settings（5–7 天，待开始）
+## Phase 2 — Settings UI + 错误反馈 + 双语（~2 天，待开始）
 
-**目标**：Claude Code 能通过 HTTP MCP 调 `speak()`、`stop_speaking()`、`list_voices()`、`update_voice_config()`。
+> **2026-05-04 切片更新**：原 Phase 2（TTS + MCP + Cloud + Keychain，5-7 天）整体砍掉。详见 DR-021 / DR-022。Phase 2 缩到 MVP 必需的 5 件事。
 
-### 任务
-
-| # | 任务 |
-|---|---|
-| 2.1 | `TTSEngine` 协议（`speak / stop / listVoices`），day-1 抽象成可热插拔 |
-| 2.2 | `SystemTTSEngine`（AVSpeechSynthesizer 包装；中英语音都列出来；按 `recognitionLanguage` 自动选默认） |
-| 2.3 | `OpenAITTSClient`（HTTP POST `{baseURL}/audio/speech` → 音频流 → `AVAudioPlayer` 播放） |
-| 2.4 | API Key 用 Keychain 存储（不落 UserDefaults） |
-| 2.5 | `MCPServer`（HTTP/SSE，绑 `127.0.0.1:0`，4 个 tool） |
-| 2.6 | mcp-config.json 持久化到 `Application Support/VoxAI/`，文件权限 600 |
-| 2.7 | `SettingsView`——**全新设计**：识别语言 / TTS 引擎 / System 中英语音 / Cloud 配置（base URL/key/voice/model/test） / 语速 / MCP 配置展示（一键复制 Claude Code JSON） |
-| 2.8 | 错误反馈：菜单栏图标状态机（正常 / 警告 badge），点击展开错误描述 |
-
-### DoD
-
-- ✅ Claude Code 添加 mcp-config 后，`speak("hello")` 能听到声音（System 模式默认）
-- ✅ Settings 配置 OpenAI key + voice 后，Cloud 模式能调通；Test Connection 按钮工作
-- ✅ Settings 切引擎/语音/语速立即生效，无需重启
-- ✅ Apple Silicon + Intel 都能 `speak()` 中英文
-- ✅ MCP server 启动后能在 Sandbox 内绑定端口、写 mcp-config
-
-### 跨架构要点
-
-- AVSpeechSynthesizer 跨架构无差异 ✓
-- OpenAITTSClient 是纯网络，无差异 ✓
-- SwiftNIO 双架构必测：archive 出 universal binary，在 Intel Mac 上跑 MCP server 一次完整 speak 调用
-
----
-
-## Phase 3 — Intel 兼容 + 完善 + 测试（3–5 天，待开始）
-
-**目标**：双架构都打磨好，错误反馈端到端成型。
+**目标**：v1.0 必备的 UI / UX 完善——让用户能看到错误、能改设置、UI 中英双语。
 
 ### 任务
 
 | # | 任务 |
 |---|---|
-| 3.1 | 在 Intel Mac 上跑完整用户旅程（开 app → 授权 → 录音 → Claude Code 连 MCP → speak），记录所有发现的问题 |
-| 3.2 | 错误反馈完善：麦克风拒绝 / 网络挂 / 端口占用 / SFSpeechRecognizer 不可用 / API Key 错 / Cloud TTS 服务挂 → 全部走「图标 badge + 浮窗角标」模式 |
-| 3.3 | 中英双语 UI 完成（`Localizable.xcstrings`） |
-| 3.4 | 单元测试：TTSEngine 路由 / OpenAITTSClient HTTP 协议 / MCP JSON-RPC 消息解析 |
-| 3.5 | `PrivacyInfo.xcprivacy` 完整声明（要列：麦克风、Speech Recognition、Network、Keychain） |
+| 2.1 | `VoxAI/Views/SettingsView.swift`——**v1.0 极简版**：只放"自动复制到剪贴板" toggle（DR-020）+ 关于信息（版本号、链接到隐私政策网页、链接到 GitHub）。**不含** 语言切换 / TTS / Cloud / MCP 任何字段（已砍） |
+| 2.2 | VoxAIApp.swift 把 `SettingsPlaceholderView` 替换为真 `SettingsView`；MenuBarExtra 加 SettingsLink（macOS 14+）/ NSApp.sendAction(showPreferencesWindow:) fallback（macOS 13） |
+| 2.3 | 错误反馈：菜单栏图标 badge（正常 / 警告变体）+ 浮窗 alert——覆盖：麦克风拒绝、SFSpeechRecognizer 不可用、TranscriptionError.audioEngineStartFailed |
+| 2.4 | Localizable.xcstrings 中英双语：所有 UI 文字 + Info.plist `NSMicrophoneUsageDescription` / `NSSpeechRecognitionUsageDescription` 都加英文版 |
+| 2.5 | `VoxAI/VoxAI.entitlements` 移除 `network.client` + `network.server`（DR-022 砍 MCP / TTS Cloud 后不再需要）|
 
 ### DoD
 
-- ✅ 不再有 `try?` 静默失败
-- ✅ 拔网线 / 拒麦克风 / 故意填错 API Key → 用户都能看懂发生了什么
-- ✅ 中英 UI 完整、无穿帮
-- ✅ 单元测试通过率 100%
+- ✅ Settings 能开关"自动复制到剪贴板"，立即生效
+- ✅ 拒麦克风 / 拒语音识别 / SFSpeechRecognizer 不可用 → 菜单栏图标变 warning + 浮窗弹错误提示
+- ✅ 切英文系统语言，UI 显示英文（DialogView 提示语 + Settings 标签 + 菜单栏 + 权限弹窗）
+- ✅ entitlements 减到 `[app-sandbox, audio-input]` 两条
+- ✅ Debug + Release universal binary 通过
 
 ---
 
-## Phase 4 — 上架资产 + 提审（3–5 天，待开始）
+## Phase 3 — 合规 + Intel 实测（~2 天，待开始）
+
+**目标**：上架前所有合规检查就位，跨架构验证完成。
+
+### 任务
+
+| # | 任务 |
+|---|---|
+| 3.1 | `PrivacyInfo.xcprivacy`——按 Apple 2024+ 强制要求声明：Microphone（用于 ASR，VoxAI 不存储不上传）/ Speech Recognition（系统级，Apple 处理）/ Required Reason API（UserDefaults `CA92.1`）|
+| 3.2 | Apple Silicon 完整用户旅程：⌘R → 第一次启动权限 → 录音 → 暂停 → 重录 → 关浮窗 → 菜单栏重开 → 切到全屏 app → 切到其他 Space → ⌘V 验证 |
+| 3.3 | **Intel Mac 实测**（Rebecca 朋友帮测）—— archive 一份 universal binary，记录跨架构问题（重点验：sampleRate 差异 / 权限弹窗时序 / 启动速度）|
+| 3.4 | 修 Intel 测试发现的问题 |
+| 3.5 | `README.md` 用户文档（替换 Phase 0 时存在的临时占位）|
+
+### DoD
+
+- ✅ PrivacyInfo.xcprivacy 完整 + 通过 `xcrun privacy-info validate` 检查
+- ✅ Apple Silicon 主流程零 bug 跑通
+- ✅ Intel Mac 主流程跑通（朋友确认）
+- ✅ README.md 给用户一页文档（用嘴编程定位 / 安装方式 / 第一次使用步骤 / 常见问题）
+
+---
+
+## Phase 4 — 上架资产 + 提审（~2-3 天，待开始）
 
 | # | 任务 | 备注 |
 |---|---|---|
-| 4.1 | App Icon（1024×1024 + 各 size） | 沿用 VoxSage 的 sparkles + 蓝紫渐变 |
-| 4.2 | App Store 截图（13" + 16" 各一组，至少 3 张：Dialog 待机 / 录音中 / Settings） | 在 Apple Silicon 拍 |
-| 4.3 | 应用描述（中英）、关键词、类别（Developer Tools 主 / Productivity 副） | |
-| 4.4 | 隐私政策网页（GitHub Pages，仓库下 `docs/privacy.html`） | 必写：VoxAI 本身不收集；ASR 由 Apple SFSpeechRecognizer 处理（可能经 Apple 服务器，DR-018）；自动复制到剪贴板（DR-020）；用户配的 Cloud TTS 由用户自负责。详见 `topics/operations/APP_STORE_CHECKLIST.md` §五 |
-| 4.5 | App Store Connect 创建 record，archive → upload → 提审 | |
-| 4.6 | README.md 用户文档 | 替换 Phase 0 时存在的临时占位 |
-| 4.7 | App Review Notes：解释 MCP HTTP server 用途（开发工具行业惯例） | 防止以 Guideline 2.5.x 拒 |
+| 4.1 | App Icon 集成（**Rebecca 用 Codex 生成**，给图后 Sage 集成进 Assets.xcassets）| 1024×1024 + 各 size 自动生成 |
+| 4.2 | App Store 截图（13" + 16" 各一组，至少 3 张：浮窗待机 / 录音中歌词 / 录音停止 transcript 状态）| Apple Silicon 上拍 |
+| 4.3 | 应用描述（**主推中文**）+ 关键词 + 类别 | 详见 `topics/operations/APP_STORE_CHECKLIST.md` |
+| 4.4 | 隐私政策网页（**Sage 做**，托管 GitHub Pages，仓库下 `docs/privacy.html`）| 必写：VoxAI 本身不收集；ASR 由 Apple SFSpeechRecognizer 处理可能经 Apple 服务器（DR-018）；剪贴板写入（DR-020）|
+| 4.5 | App Store Connect 创建 record（**Rebecca 操作**——账户登录步骤）→ Sage 准备 archive → upload → 提审 | |
+| 4.6 | App Review Notes（**极简版**——MCP 砍了不用解释 server，只需说明麦克风用途 + Apple 系统语音识别）| DR-022 让审核风险大幅降低 |
 
 ### DoD
 
 - ✅ 提交 App Review，等结果
 - ✅ 同步在 VoxSage README 加一段「商店版 VoxAI 已上架」
+
+---
+
+## 总工期重估（2026-05-04 切片后）
+
+| Phase | 原估 | 切片后 | 变化原因 |
+|---|---|---|---|
+| Phase 1（已完成） | 5-7 天 | 实际 1 天 | Sage 接管所有 Xcode 配置 + Rebecca 仅做 GUI 创建 |
+| Phase 2 | 5-7 天 | **~2 天** | 砍 TTS / MCP / Cloud / Keychain |
+| Phase 3 | 3-5 天 | **~2 天** | 砍单元测试（无 TTS/MCP 协议要测）+ 错误反馈合并到 Phase 2 |
+| Phase 4 | 3-5 天 | **~2-3 天** | 砍 MCP Review Notes 解释，资产更聚焦 |
+| **总计** | **~4 周** | **~6-7 天** | 切片到 MVP |
 
 ---
 

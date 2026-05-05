@@ -93,19 +93,16 @@ struct VoxAIApp: App {
                 onShowDialog: { openWindow(id: "dialog") }
             )
         } label: {
-            // Icon reflects recording state. Filled red when actively
-            // capturing audio; outline when idle. Phase 3.2 adds a warning
-            // variant for permission/network errors.
-            switch transcriptionService.state {
-            case .idle:
-                Image(systemName: "waveform.circle")
-            case .recording:
-                Image(systemName: "waveform.circle.fill")
-                    .foregroundStyle(.red)
-            case .paused:
-                Image(systemName: "waveform.circle.fill")
-                    .foregroundStyle(.orange)
-            }
+            VoxAILogoMark(style: .template, size: 18)
+                .accessibilityLabel(menuBarAccessibilityLabel(for: transcriptionService.state))
+        }
+    }
+
+    private func menuBarAccessibilityLabel(for state: RecordingState) -> String {
+        switch state {
+        case .idle:      return "VoxAI idle"
+        case .recording: return "VoxAI recording"
+        case .paused:    return "VoxAI paused"
         }
     }
 }

@@ -7,16 +7,14 @@
 
 ---
 
-## 一、Entitlements 清单（VoxAI.entitlements）
+## 一、Entitlements 清单（v1.0 极简版，VoxAI.entitlements）
+
+> **2026-05-04 切片更新**：v1.0 砍 TTS / MCP（DR-021 / DR-022），entitlements 从 4 条缩到 2 条。
 
 ```xml
 <key>com.apple.security.app-sandbox</key>
 <true/>
 <key>com.apple.security.device.audio-input</key>
-<true/>
-<key>com.apple.security.network.client</key>
-<true/>
-<key>com.apple.security.network.server</key>
 <true/>
 ```
 
@@ -24,16 +22,23 @@
 |---|---|---|
 | `app-sandbox` | App Store 强制 | 必需 |
 | `device.audio-input` | 麦克风访问（ASR） | 必需 |
-| `network.client` | Cloud TTS HTTP 调用 OpenAI API | 必需 |
-| `network.server` | MCP server 监听 localhost | 必需 |
+
+**v1.0 砍掉的 entitlements**（v1.1 重新引入 TTS / MCP 时再加回）：
+- ~~`network.client`~~：Cloud TTS HTTP 调用 OpenAI API（DR-021 砍 TTS 后不需要）
+- ~~`network.server`~~：MCP server 监听 localhost（DR-022 砍 MCP 后不需要）
+
+**审核优势**：极简 entitlements 让 App Review 一眼看清楚"这就是个语音输入工具"——MCP server 是新模式审核员可能不熟，砍了完全规避这道风险。
 
 ### 故意不要的 entitlement
 
 | Entitlement | 为什么不要 |
 |---|---|
+| `network.client` | v1.0 砍 Cloud TTS（DR-021），无外部 HTTP 调用 |
+| `network.server` | v1.0 砍 MCP server（DR-022），无 localhost 监听 |
 | `files.user-selected.read-write` | v1 不读写用户文件 |
 | `files.downloads.read-write` | v1 没下载行为 |
-| `temporary-exception.*` 系列 | 任何 temporary-exception 都会触发审核额外问题，能不用就不用 |
+| `accessibility` | v1 不做"自动 paste 到下层 App"（DR-024）|
+| `temporary-exception.*` 系列 | 任何 temporary-exception 都会触发审核额外问题 |
 | `network.client.location` | 不需要定位 |
 | `automation.apple-events` | 不脚本化其他 app |
 
@@ -79,13 +84,13 @@
 
 **对 VoxAI 的影响**：所有功能必须**纯 Swift 实现**，不依赖任何外部脚本。
 
-### 4.2 网络绑定
-**问题**：Sandbox 应用监听网络端口需要 `network.server` entitlement，但有两个隐含限制：
-- 端口 ≤ 1024 是 well-known port，需要 root，Sandbox 应用拿不到
-- localhost 监听允许，外网监听需要更明确的用户授意
+### 4.2 网络绑定（v1.0 N/A）
 
-**VoxAI 的解决方案**：
-- 绑 `127.0.0.1:0` → OS 自动分配端口（一定 > 1024）
+**v1.0**：不绑定任何网络端口（DR-022 砍 MCP server 后不需要）。entitlements 不含 `network.server`，runtime 也不调用 `Network.framework` 或 `SwiftNIO`。
+
+**v1.1 如果重启 MCP server**（v1.1+ 参考）：
+- Sandbox 应用监听网络端口需要 `network.server` entitlement
+- 端口 ≤ 1024 是 well-known port，Sandbox 应用拿不到 → 用 `127.0.0.1:0` OS 自动分配
 - 端口和 token 写到 `Application Support/VoxAI/mcp-config.json`，用户自己复制配置到 Claude Code
 
 ### 4.3 文件系统隔离
@@ -114,30 +119,35 @@ codesign -d --entitlements - VoxAI.app
 
 确认 entitlements 都进了签名（如果只在源码 entitlements 文件里有但没签进 app，runtime 等于没开）。
 
-### Phase 2.5 网络绑定验证
+### v1.0 常见踩坑
 
-```bash
-# 在 sandboxed app 里跑 MCP server 后
-lsof -i -P | grep VoxAI
-# 应该看到 127.0.0.1:RANDOMPORT (LISTEN)
-```
+| 症状 | 真因 |
+|---|---|
+| 麦克风权限弹窗只出现一次然后再也不出 | 用户拒了；要在 Settings 里给清晰指引去系统隐私设置开 |
+| build 通过但启动 crash | Info.plist 缺 `NSMicrophoneUsageDescription`（macOS 14+ 强制）|
+| 说话没识别到任何文字 | SFSpeechRecognizer 权限被拒 / 系统语言识别包未下载 |
+| Intel Mac 静音判断不灵敏 | 没用 `inputNode.outputFormat(forBus:0).sampleRate` 计算 silenceLimit（VoxSage 写死 43.0 的 bug，已在 v1 修复）|
 
-### 常见踩坑
+### v1.1+ 重启 MCP server 时的踩坑（参考）
 
 | 症状 | 真因 |
 |---|---|
 | `bind() failed: Operation not permitted` | 没开 `network.server` |
 | Cloud TTS 网络调用失败 | 没开 `network.client` |
-| 麦克风权限弹窗只出现一次然后再也不出 | 用户拒了；要在 Settings 里给清晰指引去系统隐私设置开 |
-| build 通过但启动 crash | Info.plist 缺 `NSMicrophoneUsageDescription`（macOS 14+ 强制）|
 
-## 六、审核 Notes（Phase 4 提交时填）
+## 六、审核 Notes（Phase 4 提交时填，v1.0 极简版）
+
+> **2026-05-04 更新**：v1.0 砍 MCP server / TTS（DR-021 / DR-022）后，Review Notes 极简——不需要解释任何 server 行为。
 
 App Review 提审时在 "Notes" 字段说明：
 
-> VoxAI is a macOS speech I/O bridge for AI tools (Claude Code etc.). It runs a local HTTP/SSE MCP server bound to 127.0.0.1 random port. This is a developer-tool industry convention (similar to Claude Desktop, Cursor, Zed extensions, etc.) — the server only accepts localhost connections and uses Bearer token authentication. No network listener on external interfaces.
+> VoxAI is a Chinese-language voice input tool for AI coding assistants (Claude Code, Cursor, etc.). The user speaks, VoxAI transcribes via Apple's SFSpeechRecognizer, and the result auto-copies to the clipboard. The user pastes into the AI tool. That's the entire feature scope of v1.0.
+>
+> Microphone access: required for speech-to-text. Audio is processed by Apple's system framework (SFSpeechRecognizer), which may transmit to Apple servers per Apple's privacy policy. VoxAI itself does not store, upload, or transmit any audio or text outside the system clipboard.
+>
+> No network listening, no third-party server connections, no telemetry. Entitlements are limited to `app-sandbox` and `device.audio-input`.
 
-**为什么要写**：MCP HTTP server 是新模式，审核员可能不熟悉。提前解释避免被以 Guideline 2.5.x 拒。
+**为什么这套 Notes 简单**：v1.0 的功能极聚焦——只有"录音 + 系统识别 + 写剪贴板"。审核员一眼看清楚，过审风险降到最低。这是切片到 ASR-only MVP 的副产品收益。
 
 ## 七、签名 Team（每次新 Apple 项目都要警觉）
 

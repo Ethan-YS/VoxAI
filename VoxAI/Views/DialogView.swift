@@ -244,19 +244,8 @@ private struct DialogTitleBar: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            // Logo
-            ZStack {
-                Circle()
-                    .fill(LinearGradient(
-                        colors: [Color(hex: "7B6CF6"), Color(hex: "5B8EF0")],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ))
-                    .frame(width: 28, height: 28)
-                Image(systemName: "sparkles")
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(.white)
-            }
+            VoxAILogoMark(style: .color, size: 28)
+                .accessibilityHidden(true)
 
             Text("VoxAI")
                 .font(.system(size: 15, weight: .semibold))
@@ -585,5 +574,144 @@ private extension Color {
             green: Double((n >> 8)  & 0xFF) / 255,
             blue:  Double( n        & 0xFF) / 255
         )
+    }
+}
+
+// MARK: - VoxAI logo mark
+
+struct VoxAILogoMark: View {
+    enum Style {
+        case color
+        case template
+    }
+
+    let style: Style
+    let size: CGFloat
+
+    var body: some View {
+        GeometryReader { proxy in
+            let d = min(proxy.size.width, proxy.size.height)
+
+            ZStack {
+                background(diameter: d)
+
+                waveformBars(diameter: d)
+
+                Capsule()
+                    .fill(foregroundColor)
+                    .frame(width: d * 0.22, height: d * 0.4)
+                    .offset(y: -d * 0.08)
+
+                VoxAIMicYokeShape()
+                    .stroke(
+                        foregroundColor,
+                        style: StrokeStyle(
+                            lineWidth: max(1.2, d * 0.055),
+                            lineCap: .round,
+                            lineJoin: .round
+                        )
+                    )
+                    .frame(width: d * 0.46, height: d * 0.42)
+                    .offset(y: d * 0.04)
+
+                RoundedRectangle(cornerRadius: d * 0.03)
+                    .fill(foregroundColor)
+                    .frame(width: max(1.6, d * 0.06), height: d * 0.18)
+                    .offset(y: d * 0.25)
+
+                RoundedRectangle(cornerRadius: d * 0.035)
+                    .fill(foregroundColor)
+                    .frame(width: d * 0.32, height: max(1.6, d * 0.06))
+                    .offset(y: d * 0.34)
+
+                VoxAISparkleShape()
+                    .fill(foregroundColor)
+                    .frame(width: d * 0.2, height: d * 0.2)
+                    .offset(x: -d * 0.24, y: -d * 0.25)
+
+                VoxAISparkleShape()
+                    .fill(foregroundColor.opacity(style == .color ? 0.85 : 1))
+                    .frame(width: d * 0.12, height: d * 0.12)
+                    .offset(x: d * 0.25, y: d * 0.18)
+            }
+            .frame(width: d, height: d)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .frame(width: size, height: size)
+    }
+
+    @ViewBuilder
+    private func background(diameter d: CGFloat) -> some View {
+        switch style {
+        case .color:
+            Circle()
+                .fill(LinearGradient(
+                    colors: [Color(hex: "7B6CF6"), Color(hex: "4A6CF7"), Color(hex: "24D3EE")],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ))
+                .shadow(color: Color(hex: "4A6CF7").opacity(0.25), radius: d * 0.18, y: d * 0.06)
+        case .template:
+            Circle()
+                .stroke(foregroundColor, lineWidth: max(1.2, d * 0.075))
+        }
+    }
+
+    @ViewBuilder
+    private func waveformBars(diameter d: CGFloat) -> some View {
+        let opacity = style == .color ? 0.62 : 1.0
+        let bars: [(CGFloat, CGFloat, CGFloat)] = [
+            (-0.34, 0.2, 0.08),
+            (-0.24, 0.34, -0.02),
+            (0.24, 0.34, -0.02),
+            (0.34, 0.2, 0.08),
+        ]
+
+        ForEach(Array(bars.enumerated()), id: \.offset) { _, bar in
+            RoundedRectangle(cornerRadius: d * 0.02)
+                .fill(foregroundColor.opacity(opacity))
+                .frame(width: max(1.2, d * 0.045), height: d * bar.1)
+                .offset(x: d * bar.0, y: d * bar.2)
+        }
+    }
+
+    private var foregroundColor: Color {
+        switch style {
+        case .color: return .white
+        case .template: return .primary
+        }
+    }
+}
+
+private struct VoxAIMicYokeShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.minX + rect.width * 0.16, y: rect.minY + rect.height * 0.34))
+        path.addQuadCurve(
+            to: CGPoint(x: rect.minX + rect.width * 0.84, y: rect.minY + rect.height * 0.34),
+            control: CGPoint(x: rect.midX, y: rect.maxY)
+        )
+        return path
+    }
+}
+
+private struct VoxAISparkleShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        let cx = rect.midX
+        let cy = rect.midY
+        let long = min(rect.width, rect.height) * 0.5
+        let short = long * 0.32
+
+        var path = Path()
+        path.move(to: CGPoint(x: cx, y: cy - long))
+        path.addLine(to: CGPoint(x: cx + short, y: cy - short))
+        path.addLine(to: CGPoint(x: cx + long, y: cy))
+        path.addLine(to: CGPoint(x: cx + short, y: cy + short))
+        path.addLine(to: CGPoint(x: cx, y: cy + long))
+        path.addLine(to: CGPoint(x: cx - short, y: cy + short))
+        path.addLine(to: CGPoint(x: cx - long, y: cy))
+        path.addLine(to: CGPoint(x: cx - short, y: cy - short))
+        path.closeSubpath()
+        return path
     }
 }
