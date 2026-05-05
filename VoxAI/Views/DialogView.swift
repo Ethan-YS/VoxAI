@@ -325,9 +325,14 @@ private struct LyricsView: View {
     }
 
     /// Older segments fade gradually (0.4 oldest → 0.75 most recent).
+    /// Edge case: a lone segment is BOTH the oldest and the most recent —
+    /// it should look "fresh" (0.75), not "ancient" (0.4). Without this
+    /// special case the formula picks 0.4 because index/total-1 = 0/1 = 0,
+    /// which made the user's only-just-spoken sentence look ghosted.
     private func opacity(for index: Int, total: Int) -> Color {
         guard total > 0 else { return .secondary }
-        let recency = Double(index) / Double(max(total - 1, 1))
+        if total == 1 { return Color(NSColor.labelColor).opacity(0.75) }
+        let recency = Double(index) / Double(total - 1)
         let alpha = 0.4 + recency * 0.35
         return Color(NSColor.labelColor).opacity(alpha)
     }

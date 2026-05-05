@@ -44,11 +44,17 @@ struct VoxAIApp: App {
     var body: some Scene {
         // MARK: - Main floating dialog
         //
-        // WindowGroup gives us a SwiftUI-native window that can be re-opened
-        // by id from anywhere in the app (e.g. the menu bar extra). Window
-        // styling is applied inside DialogView via WindowAccessor —
+        // Why `Window` (singleton) and NOT `WindowGroup`:
+        //   `WindowGroup` allows multiple instances of the same scene id —
+        //   every `openWindow(id: "dialog")` from the menu bar would stack
+        //   yet another floating panel on top, which is exactly what we
+        //   saw the first time we tested. `Window` gives us a single
+        //   instance that gets refocused (instead of recreated) when
+        //   openWindow is called again.
+        //
+        // Window styling is applied inside DialogView via WindowAccessor —
         // .hiddenTitleBar here is just a cosmetic safety net.
-        WindowGroup("VoxAI", id: "dialog") {
+        Window("VoxAI", id: "dialog") {
             DialogView()
                 .environmentObject(transcriptionService)
                 .environmentObject(settings)
