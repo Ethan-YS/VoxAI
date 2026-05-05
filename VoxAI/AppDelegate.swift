@@ -33,6 +33,41 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Build the panel + show it on launch. The user expects the
         // dialog to be visible immediately after launching VoxAI.
         showDialog()
+
+        // SwiftUI quirk: with LSUIElement = YES and no `Window` /
+        // `WindowGroup` scene declared (we host the dialog as an
+        // NSPanel via this AppDelegate, not a SwiftUI scene), SwiftUI
+        // falls back to opening its `Settings` scene at launch as the
+        // "default visible window" — which is wrong; Settings should
+        // only open when the user asks for it (⌘, or menu bar entry).
+        // Close any window whose role looks like the Settings window
+        // a beat after launch, once SwiftUI has had a chance to
+        // materialize it.
+        DispatchQueue.main.async {
+            self.closeAutoOpenedSettingsWindow()
+        }
+    }
+
+    /// Hunt down the Settings window that SwiftUI auto-opens on launch
+    /// and close it. We identify it heuristically because SwiftUI doesn't
+    /// expose a stable identifier for the Settings scene's window. The
+    /// detection is conservative — it skips our floating dialog panel
+    /// and the menu-bar status item window.
+    private func closeAutoOpenedSettingsWindow() {
+        for window in NSApp.windows {
+            // Skip our own dialog panel.
+            if window === dialogController.panel { continue }
+            // Skip the menu-bar status window (NSStatusBarWindow private class).
+            if String(describing: type(of: window)).contains("StatusBar") { continue }
+            // Skip menu-bar popover host.
+            if String(describing: type(of: window)).contains("PopoverWindow") { continue }
+            // Skip windows that aren't visible (no need to close hidden ones).
+            guard window.isVisible else { continue }
+
+            // Anything else visible right after launch is almost certainly
+            // the Settings window SwiftUI just opened. Close it.
+            window.close()
+        }
     }
 
     /// Re-open the dialog when the user activates the app from the
