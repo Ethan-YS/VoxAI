@@ -253,7 +253,18 @@ private struct DialogTitleBar: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            VoxAILogoMark(style: .color, size: 28)
+            // Title bar mark uses the real app icon (rendered from
+            // Assets.xcassets/AppIconImage.imageset, which mirrors the
+            // PNGs from AppIcon.appiconset). The previously-used
+            // VoxAILogoMark was a SwiftUI shape composition that didn't
+            // match the polish of the Codex-generated app icon Rebecca
+            // built — the title bar should reflect the same brand mark
+            // users see in the Dock / Finder / menu bar app list.
+            Image("AppIconImage")
+                .resizable()
+                .interpolation(.high)
+                .frame(width: 28, height: 28)
+                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
                 .accessibilityHidden(true)
 
             Text("VoxAI")
