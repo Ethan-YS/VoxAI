@@ -93,16 +93,37 @@ struct VoxAIApp: App {
                 onShowDialog: { openWindow(id: "dialog") }
             )
         } label: {
-            // Error state takes precedence — show a warning triangle so
-            // the user knows something needs attention without opening
-            // the dialog. Phase 2.3 unified error path.
-            if transcriptionService.lastError != nil {
-                Image(systemName: "exclamationmark.triangle.fill")
-                    .accessibilityLabel("VoxAI 错误")
-            } else {
-                VoxAILogoMark(style: .template, size: 18)
-                    .accessibilityLabel(menuBarAccessibilityLabel(for: transcriptionService.state))
-            }
+            // Why an SF Symbol here instead of `VoxAILogoMark`:
+            //   The menu bar pipeline expects a simple template image —
+            //   it rasterizes label content into a small monochrome bitmap
+            //   and applies the system's menu-bar tint. VoxAILogoMark is a
+            //   composition of many tiny SwiftUI shapes (mic yoke, two
+            //   sparkles, four waveform bars, ring, capsule) plus
+            //   `Color.primary`, which doesn't always resolve correctly in
+            //   the menu-bar context. Net result: at 18px the whole icon
+            //   sometimes renders blank — visible in Rebecca's smoke test
+            //   where the icon disappeared from the bar entirely.
+            //
+            // SF Symbols are designed for this surface: clean glyph,
+            // automatic template tinting, weight that matches the bar.
+            // We still use the rich VoxAILogoMark inside the dialog
+            // title bar where 28px and full color rendering makes sense.
+            Image(systemName: menuBarSymbol)
+                .accessibilityLabel(menuBarAccessibilityLabel(for: transcriptionService.state))
+        }
+    }
+
+    /// Symbol used for the menu bar label.
+    /// - Error always wins (warning triangle).
+    /// - Otherwise reflect recording state with the canonical
+    ///   `waveform.circle` / `waveform.circle.fill`.
+    private var menuBarSymbol: String {
+        if transcriptionService.lastError != nil {
+            return "exclamationmark.triangle.fill"
+        }
+        switch transcriptionService.state {
+        case .idle:                   return "waveform.circle"
+        case .recording, .paused:     return "waveform.circle.fill"
         }
     }
 
