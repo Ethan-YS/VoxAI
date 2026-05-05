@@ -96,16 +96,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         panel.titleVisibility = .hidden
         panel.titlebarAppearsTransparent = true
 
-        // Inject the SwiftUI view as the content. EnvironmentObjects
-        // give DialogView access to settings, transcription state, and
-        // the panel controller (for the close button).
-        let hosting = NSHostingController(
+        // Inject the SwiftUI view as the content.
+        //
+        // Why NSHostingView (NSView subclass) instead of NSHostingController:
+        //   When we used NSHostingController, the hosting layer's sizing
+        //   ignored DialogView's `.frame(width: 420, height: 420)` and the
+        //   outer RoundedRectangle ended up only filling the title-bar
+        //   slice of the panel — the rest stayed transparent (Rebecca's
+        //   "他现在看起来不像一个弹窗" smoke test). NSHostingView is the
+        //   plain NSView wrapper, and combined with .width/.height
+        //   autoresizing it makes the SwiftUI content authoritatively fill
+        //   the panel's contentView. EnvironmentObjects flow the same way.
+        let hostingView = NSHostingView(
             rootView: DialogView()
                 .environmentObject(TranscriptionService.shared)
                 .environmentObject(AppSettings.shared)
                 .environmentObject(dialogController)
         )
-        panel.contentViewController = hosting
+        hostingView.frame = NSRect(origin: .zero, size: panelSize)
+        hostingView.autoresizingMask = [.width, .height]
+        panel.contentView = hostingView
         panel.setContentSize(panelSize)
 
         // Position: top-right of the main screen's visible frame, with
