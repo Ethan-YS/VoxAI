@@ -27,65 +27,104 @@ import Combine
 // so the view can later hide it (close button) without holding the reference
 // inside the service layer.
 
+/// NSView subclass that tracks "this view just got attached to its window"
+/// and "the window just became key" — both key moments where we want to
+/// (re-)assert NSWindow configuration on the borderless floating dialog.
+///
+/// Why this and not `updateNSView`:
+///   `Window` (singleton scene) keeps the SAME NSView/NSWindow across
+///   hide/show cycles. SwiftUI calls `updateNSView` on every tick — way
+///   too often, including moments when SwiftUI/AppKit are themselves
+///   manipulating the window (Settings scene activation, etc.). Re-asserting
+///   styleMask/level inside those ticks raced against SwiftUI's own window
+///   management and left the dialog as a regular (non-floating) window.
+///
+///   AppKit's `viewDidMoveToWindow` + `didBecomeKeyNotification` fire at
+///   the EXACT moments we care about (window attached / window made key),
+///   never in the middle of SwiftUI's window plumbing. Far less noise,
+///   far more reliable.
+private final class WindowTrackingView: NSView {
+    /// Called whenever this view is attached to a window OR the window
+    /// becomes key. Should apply all the desired NSWindow configuration.
+    var configure: ((NSWindow) -> Void)?
+
+    private var keyObserver: NSObjectProtocol?
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+
+        // Tear down any prior observer (window may have changed).
+        if let existing = keyObserver {
+            NotificationCenter.default.removeObserver(existing)
+            keyObserver = nil
+        }
+
+        guard let w = window else { return }
+
+        // First-shot config (window just attached).
+        configure?(w)
+
+        // Re-config every time the user re-opens the window from the
+        // menu bar (window becomes key again). This is what fixes the
+        // "not floating after re-open" / "not draggable after re-open"
+        // class of bugs without polluting updateNSView.
+        keyObserver = NotificationCenter.default.addObserver(
+            forName: NSWindow.didBecomeKeyNotification,
+            object: w,
+            queue: .main
+        ) { [weak self] _ in
+            guard let w = self?.window else { return }
+            self?.configure?(w)
+        }
+    }
+
+    deinit {
+        if let keyObserver {
+            NotificationCenter.default.removeObserver(keyObserver)
+        }
+    }
+}
+
 private struct WindowAccessor: NSViewRepresentable {
     @Binding var window: NSWindow?
 
     func makeNSView(context: Context) -> NSView {
-        let view = NSView()
-        scheduleConfiguration(for: view)
-        return view
-    }
-
-    /// `Window` (singleton) keeps the same NSView instance across
-    /// hide/show cycles — `makeNSView` runs ONCE. But SwiftUI/AppKit
-    /// resets several window flags during a hide→show cycle (notably
-    /// `isMovableByWindowBackground` on borderless windows, which makes
-    /// the dialog become un-draggable on re-open from the menu bar).
-    /// Reapplying configuration in `updateNSView` keeps it draggable
-    /// every time. Cheap (just attribute setters) and idempotent.
-    func updateNSView(_ nsView: NSView, context: Context) {
-        scheduleConfiguration(for: nsView)
-    }
-
-    private func scheduleConfiguration(for view: NSView) {
-        // Two-step async: SwiftUI's window initialization runs in stages,
-        // and `view.window` is non-nil before SwiftUI has finished setting
-        // its own level/style. Setting `.level = .floating` in the same
-        // tick as `view.window` becomes available sometimes loses out to
-        // SwiftUI's later override. Pushing level/collectionBehavior into
-        // a second `async` (after style mutations) makes it stick reliably.
-        // VoxSage hit the same race and used the same fix.
-        DispatchQueue.main.async {
-            guard let w = view.window else { return }
+        let view = WindowTrackingView()
+        view.configure = { w in
             w.styleMask = [.borderless, .fullSizeContentView]
             w.isOpaque = false
             w.backgroundColor = .clear
-            // Drag-by-background: enables the user to drag the borderless
-            // window from any non-interactive surface. CRITICAL: must be
-            // re-applied on every show, not just first open — see comment
-            // on `updateNSView` above.
+            // Drag-by-background: enables dragging the borderless window
+            // from any non-interactive surface.
             w.isMovableByWindowBackground = true
-
-            DispatchQueue.main.async {
-                // .floating: float above all normal windows in this and
-                //            every other app
-                w.level = .floating
-                // .canJoinAllSpaces: visible regardless of which Space the
-                //                    user is currently on
-                // .stationary: doesn't slide with Space transitions
-                // .fullScreenAuxiliary: stays visible when other apps go
-                //                       fullscreen (otherwise the dialog
-                //                       would hide behind the fullscreen app)
-                w.collectionBehavior = [
-                    .canJoinAllSpaces,
-                    .stationary,
-                    .fullScreenAuxiliary,
-                ]
-                if window !== w {
-                    window = w
-                }
+            // .floating: float above all normal windows in this and every
+            //            other app.
+            w.level = .floating
+            // .canJoinAllSpaces: visible regardless of which Space the
+            //                    user is currently on.
+            // .stationary: doesn't slide with Space transitions.
+            // .fullScreenAuxiliary: stays visible when other apps go
+            //                       fullscreen.
+            w.collectionBehavior = [
+                .canJoinAllSpaces,
+                .stationary,
+                .fullScreenAuxiliary,
+            ]
+            // Publish the window reference back to SwiftUI ONLY if it
+            // actually changed — `===` prevents a re-render loop where
+            // setting the binding triggers another updateNSView pass.
+            if window !== w {
+                DispatchQueue.main.async { window = w }
             }
         }
+        return view
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {
+        // Intentionally empty.
+        // Configuration is asserted via WindowTrackingView's
+        // viewDidMoveToWindow + didBecomeKey observer. SwiftUI ticks
+        // don't drive window setup anymore.
     }
 }
 
