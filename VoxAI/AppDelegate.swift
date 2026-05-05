@@ -84,10 +84,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         ]
 
         // Visual: transparent background so SwiftUI's RoundedRectangle
-        // shadow shows through.
+        // shape mask shows through.
         panel.isOpaque = false
         panel.backgroundColor = .clear
-        panel.hasShadow = false
+        // hasShadow = true here is critical: with isOpaque = false,
+        // macOS draws the window shadow following the contentView's
+        // alpha mask (i.e. the SwiftUI RoundedRectangle outline) instead
+        // of the panel's rectangular bounds. This gives us a rounded,
+        // softly-shadowed card. Setting it to false (as I mistakenly did
+        // in the first NSPanel commit) leaves the window with NO shadow
+        // at all, so the floating dialog reads as just a flat shape with
+        // no separation from whatever's behind it. SwiftUI's own
+        // `.shadow(...)` modifier can't substitute — the shadow halo
+        // extends past the SwiftUI .frame and gets clipped by the panel.
+        panel.hasShadow = true
 
         // Drag-by-background — borderless windows are otherwise un-draggable.
         panel.isMovableByWindowBackground = true
