@@ -89,11 +89,11 @@
 
 | # | 任务 |
 |---|---|
-| 2.1 | `VoxAI/Views/SettingsView.swift`——**v1.0 极简版**：只放"自动复制到剪贴板" toggle（DR-020）+ 关于信息（版本号、链接到隐私政策网页、链接到 GitHub）。**不含** 语言切换 / TTS / Cloud / MCP 任何字段（已砍） |
-| 2.2 | VoxAIApp.swift 把 `SettingsPlaceholderView` 替换为真 `SettingsView`；MenuBarExtra 加 SettingsLink（macOS 14+）/ NSApp.sendAction(showPreferencesWindow:) fallback（macOS 13） |
-| 2.3 | 错误反馈：菜单栏图标 badge（正常 / 警告变体）+ 浮窗 alert——覆盖：麦克风拒绝、SFSpeechRecognizer 不可用、TranscriptionError.audioEngineStartFailed |
+| 2.1 | ✅ `VoxAI/Views/SettingsView.swift`——v1.0 极简版（autoCopy toggle + 关于：版本号 + 隐私政策链接 + GitHub 链接 + v1.x 占位提示）|
+| 2.2 | ✅ VoxAIApp.swift `SettingsPlaceholderView` → 真 `SettingsView`；MenuBarExtra 加 `SettingsLink`（macOS 14+）/ `showSettingsWindow:` selector fallback（macOS 13）|
+| 2.3 | ✅ 错误反馈统一路径：`TranscriptionService.requestPermissions` 失败时 set `lastError`；DialogView 用 `errorBinding` 弹 alert（覆盖 4 种 TranscriptionError case）；DialogTitleBar + MenuBarExtra label + MenuBarContent 状态行都根据 `lastError != nil` 显示 warning |
 | 2.4 | Localizable.xcstrings 中英双语：所有 UI 文字 + Info.plist `NSMicrophoneUsageDescription` / `NSSpeechRecognitionUsageDescription` 都加英文版 |
-| 2.5 | `VoxAI/VoxAI.entitlements` 移除 `network.client` + `network.server`（DR-022 砍 MCP / TTS Cloud 后不再需要）|
+| 2.5 | ✅ `VoxAI/VoxAI.entitlements` 已移除 `network.client` + `network.server`（pivot commit 里完成）|
 
 ### DoD
 

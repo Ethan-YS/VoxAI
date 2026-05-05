@@ -67,16 +67,15 @@ struct VoxAIApp: App {
             CommandGroup(replacing: .newItem) {}
         }
 
-        // MARK: - Settings (placeholder, Phase 2.7 fills in the real UI)
+        // MARK: - Settings (real UI, Phase 2.1)
         //
-        // Using SwiftUI's `Settings` scene gives us the standard ⌘,
-        // affordance and a system-managed Settings window — no custom
-        // Window plumbing required. The placeholder content is intentional
-        // so v1.7 builds run without a fake "Settings…" menu item that
-        // leads nowhere.
+        // SwiftUI's `Settings` scene gives us the standard ⌘, affordance
+        // and a system-managed Settings window — no custom Window plumbing
+        // required. v1.0 SettingsView is intentionally minimal: just the
+        // "auto-copy to clipboard" toggle (DR-020) plus an About card.
+        // Future versions will expand here as new features land.
         Settings {
-            SettingsPlaceholderView()
-                .environmentObject(transcriptionService)
+            SettingsView()
                 .environmentObject(settings)
         }
 
@@ -90,11 +89,20 @@ struct VoxAIApp: App {
         MenuBarExtra {
             MenuBarContent(
                 state: transcriptionService.state,
+                hasError: transcriptionService.lastError != nil,
                 onShowDialog: { openWindow(id: "dialog") }
             )
         } label: {
-            VoxAILogoMark(style: .template, size: 18)
-                .accessibilityLabel(menuBarAccessibilityLabel(for: transcriptionService.state))
+            // Error state takes precedence — show a warning triangle so
+            // the user knows something needs attention without opening
+            // the dialog. Phase 2.3 unified error path.
+            if transcriptionService.lastError != nil {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .accessibilityLabel("VoxAI 错误")
+            } else {
+                VoxAILogoMark(style: .template, size: 18)
+                    .accessibilityLabel(menuBarAccessibilityLabel(for: transcriptionService.state))
+            }
         }
     }
 
@@ -111,14 +119,15 @@ struct VoxAIApp: App {
 
 private struct MenuBarContent: View {
     let state: RecordingState
+    let hasError: Bool
     let onShowDialog: () -> Void
 
     var body: some View {
         // Status row — non-interactive, just confirms what the icon shows
         HStack {
-            Image(systemName: stateIcon)
-                .foregroundStyle(stateColor)
-            Text(stateLabel)
+            Image(systemName: hasError ? "exclamationmark.triangle.fill" : stateIcon)
+                .foregroundStyle(hasError ? .orange : stateColor)
+            Text(hasError ? "有错误 / Error" : stateLabel)
                 .foregroundStyle(.secondary)
         }
         .padding(.horizontal, 8)
@@ -131,12 +140,46 @@ private struct MenuBarContent: View {
         }
         .keyboardShortcut("d", modifiers: [.command, .shift])
 
+        // Settings entry point.
+        // SettingsLink is macOS 14+ — gives us a button that opens the
+        // Settings scene with the standard ⌘, shortcut. On macOS 13 we
+        // fall back to manually invoking the standard "showSettingsWindow:"
+        // Cocoa selector, which the Settings scene wires up.
+        if #available(macOS 14, *) {
+            SettingsLink {
+                Label("设置 / Settings", systemImage: "gearshape")
+            }
+            .keyboardShortcut(",", modifiers: .command)
+        } else {
+            Button {
+                openSettingsLegacy()
+            } label: {
+                Label("设置 / Settings", systemImage: "gearshape")
+            }
+            .keyboardShortcut(",", modifiers: .command)
+        }
+
         Divider()
 
         Button("退出 VoxAI / Quit") {
             NSApplication.shared.terminate(nil)
         }
         .keyboardShortcut("q", modifiers: .command)
+    }
+
+    /// macOS 13 fallback for opening the Settings scene.
+    /// SwiftUI's Settings scene registers itself with both the legacy
+    /// `showPreferencesWindow:` selector (pre-14) and the newer
+    /// `showSettingsWindow:` selector. Try the new one first, fall back.
+    private func openSettingsLegacy() {
+        let selectors: [Selector] = [
+            Selector(("showSettingsWindow:")),
+            Selector(("showPreferencesWindow:")),
+        ]
+        for sel in selectors where NSApp.responds(to: sel) {
+            NSApp.sendAction(sel, to: nil, from: nil)
+            return
+        }
     }
 
     private var stateIcon: String {
@@ -164,23 +207,5 @@ private struct MenuBarContent: View {
     }
 }
 
-// MARK: - Settings placeholder (Phase 2.7 will replace this)
-
-private struct SettingsPlaceholderView: View {
-    var body: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "gearshape")
-                .font(.system(size: 40))
-                .foregroundStyle(.secondary)
-            Text("设置 / Settings")
-                .font(.title2)
-                .fontWeight(.semibold)
-            Text("完整设置面板将在 Phase 2.7 加入。\nFull settings panel will be added in Phase 2.7.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-        }
-        .padding(40)
-        .frame(width: 480, height: 320)
-    }
-}
+// SettingsPlaceholderView was removed in Phase 2.1 — replaced by the
+// real SettingsView in Views/SettingsView.swift.

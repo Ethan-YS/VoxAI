@@ -145,8 +145,9 @@ final class TranscriptionService: ObservableObject {
     // MARK: - Public API
 
     /// Request both Speech Recognition and Microphone authorizations.
-    /// Returns `true` only if both are granted. Caller (Phase 1.6 DialogView)
-    /// should call this on first launch / before the first record action.
+    /// Returns `true` only if both are granted. On denial, also writes
+    /// `.notAuthorized` into `lastError` so any view bound to the published
+    /// error state can surface the same message (Phase 2.3 unified path).
     func requestPermissions() async -> Bool {
         // 1) Speech Recognition (Apple's framework auth)
         let speechGranted = await withCheckedContinuation { (cont: CheckedContinuation<Bool, Never>) in
@@ -154,7 +155,10 @@ final class TranscriptionService: ObservableObject {
                 cont.resume(returning: status == .authorized)
             }
         }
-        guard speechGranted else { return false }
+        guard speechGranted else {
+            lastError = .notAuthorized
+            return false
+        }
 
         // 2) Microphone (system mic access — required separately on macOS 14+)
         let micGranted = await withCheckedContinuation { (cont: CheckedContinuation<Bool, Never>) in
@@ -162,7 +166,16 @@ final class TranscriptionService: ObservableObject {
                 cont.resume(returning: granted)
             }
         }
+        if !micGranted {
+            lastError = .notAuthorized
+        }
         return micGranted
+    }
+
+    /// Clear the last surfaced error. Views call this when the user has
+    /// acknowledged an error alert.
+    func dismissError() {
+        lastError = nil
     }
 
     /// Re-create the speech recognizer for the currently configured language.

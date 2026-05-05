@@ -78,7 +78,18 @@ struct DialogView: View {
 
     @State private var window: NSWindow?
     @State private var copyFlash = false        // brief checkmark state on copy
-    @State private var permissionDenied = false  // shown if user denied mic/speech
+
+    /// Bound to `ts.lastError != nil`. Errors flow through a single
+    /// channel (Phase 2.3 unified path) — both permission denial and
+    /// audio-engine failures land here.
+    private var errorBinding: Binding<Bool> {
+        Binding(
+            get: { ts.lastError != nil },
+            set: { newValue in
+                if !newValue { ts.dismissError() }
+            }
+        )
+    }
 
     var body: some View {
         RoundedRectangle(cornerRadius: 20)
@@ -88,6 +99,7 @@ struct DialogView: View {
                 VStack(spacing: 0) {
                     DialogTitleBar(
                         copyFlash: copyFlash,
+                        hasError: ts.lastError != nil,
                         onClose: closeWindow
                     )
                     .padding(.horizontal, 16)
@@ -107,15 +119,31 @@ struct DialogView: View {
             .background(WindowAccessor(window: $window))
             .onAppear { wireServiceCallbacks() }
             .alert(
-                "麦克风或语音识别权限被拒绝",
-                isPresented: $permissionDenied,
+                errorAlertTitle,
+                isPresented: errorBinding,
                 actions: {
-                    Button("OK") {}
+                    Button("我知道了 / OK") {}
                 },
                 message: {
-                    Text("请到 系统设置 → 隐私与安全性 → 麦克风/语音识别 中授予 VoxAI 权限。")
+                    Text(ts.lastError?.errorDescription ?? "")
                 }
             )
+    }
+
+    /// Title shown in the error alert. We pick a slightly different
+    /// headline for the most common case (auth denial) so the user
+    /// recognizes "ah, the permission thing" without reading the body.
+    private var errorAlertTitle: String {
+        switch ts.lastError {
+        case .notAuthorized:
+            return "麦克风或语音识别权限被拒绝"
+        case .speechRecognizerUnavailable:
+            return "语音识别不可用"
+        case .audioEngineStartFailed, .recognitionRequestUnavailable:
+            return "录音引擎启动失败"
+        case .none:
+            return ""
+        }
     }
 
     // MARK: - Content
@@ -188,13 +216,11 @@ struct DialogView: View {
     private func startRecording() {
         Task { @MainActor in
             // Always (re-)check authorization on each start. If the user
-            // pre-granted, this returns instantly; if denied, we surface
-            // a dialog instead of silently doing nothing.
+            // pre-granted, this returns instantly; on denial the service
+            // sets `ts.lastError = .notAuthorized` and our errorBinding
+            // alert pops automatically — no separate state to manage.
             let granted = await ts.requestPermissions()
-            if !granted {
-                permissionDenied = true
-                return
-            }
+            guard granted else { return }
             // Starting fresh wipes any leftover transcript from the previous
             // session — the user already had a chance to copy it.
             if !ts.fullTranscript.isEmpty {
@@ -240,6 +266,7 @@ struct DialogView: View {
 
 private struct DialogTitleBar: View {
     let copyFlash: Bool
+    let hasError: Bool
     let onClose: () -> Void
 
     var body: some View {
@@ -250,6 +277,16 @@ private struct DialogTitleBar: View {
             Text("VoxAI")
                 .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(Color(NSColor.labelColor))
+
+            // Error badge — small triangle that mirrors the menu bar
+            // warning state. Hidden when no error is active.
+            if hasError {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(.orange)
+                    .help("有错误待处理（点击 OK 关闭弹窗后可重试）")
+                    .transition(.scale.combined(with: .opacity))
+            }
 
             // Copy-confirmation flag — shows briefly after auto-copy or
             // manual copy. Tells the user "your text is on the clipboard"
