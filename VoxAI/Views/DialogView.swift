@@ -32,6 +32,22 @@ private struct WindowAccessor: NSViewRepresentable {
 
     func makeNSView(context: Context) -> NSView {
         let view = NSView()
+        scheduleConfiguration(for: view)
+        return view
+    }
+
+    /// `Window` (singleton) keeps the same NSView instance across
+    /// hide/show cycles — `makeNSView` runs ONCE. But SwiftUI/AppKit
+    /// resets several window flags during a hide→show cycle (notably
+    /// `isMovableByWindowBackground` on borderless windows, which makes
+    /// the dialog become un-draggable on re-open from the menu bar).
+    /// Reapplying configuration in `updateNSView` keeps it draggable
+    /// every time. Cheap (just attribute setters) and idempotent.
+    func updateNSView(_ nsView: NSView, context: Context) {
+        scheduleConfiguration(for: nsView)
+    }
+
+    private func scheduleConfiguration(for view: NSView) {
         // Two-step async: SwiftUI's window initialization runs in stages,
         // and `view.window` is non-nil before SwiftUI has finished setting
         // its own level/style. Setting `.level = .floating` in the same
@@ -44,6 +60,10 @@ private struct WindowAccessor: NSViewRepresentable {
             w.styleMask = [.borderless, .fullSizeContentView]
             w.isOpaque = false
             w.backgroundColor = .clear
+            // Drag-by-background: enables the user to drag the borderless
+            // window from any non-interactive surface. CRITICAL: must be
+            // re-applied on every show, not just first open — see comment
+            // on `updateNSView` above.
             w.isMovableByWindowBackground = true
 
             DispatchQueue.main.async {
@@ -61,13 +81,12 @@ private struct WindowAccessor: NSViewRepresentable {
                     .stationary,
                     .fullScreenAuxiliary,
                 ]
-                window = w
+                if window !== w {
+                    window = w
+                }
             }
         }
-        return view
     }
-
-    func updateNSView(_ nsView: NSView, context: Context) {}
 }
 
 // MARK: - DialogView
