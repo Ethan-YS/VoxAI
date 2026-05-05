@@ -300,3 +300,81 @@ README / 项目文档用的浮窗局部素材（840×840）保留在 `docs/scree
 - [ ] 出口合规（Export Compliance）：使用标准加密 → 通常勾"使用 Apple 提供的标准 HTTPS / TLS"，但 v1.0 没用网络，可以勾"Not designed to use cryptography"
 
 提审包：用 `method=app-store` 重跑 archive → upload via Transporter 或 Xcode Organizer。
+
+---
+
+## 11. 提审通过后的 GitHub 收尾
+
+> 记录于 2026-05-05，等 Apple 审核通过后做。Topics 已在 release-ready 阶段加完（macos / swift / swiftui / voice-input / dictation / speech-to-text / chinese / claude-code / cursor / accessibility-app / app-store / app-sandbox），此节只列**上架后**的事项。
+
+### 11.1 建 GitHub Release（推荐）
+
+`v1.0-rc.1` tag 已存在但**没有对应 Release**。上架通过后建一个正式 `v1.0`：
+
+- **不上传 binary**——VoxAI 的分发渠道是 Mac App Store，不是 GitHub Releases（DR-026 切的就是这条线）
+- Release 类型：source-only（GitHub 自动 attach 源码 zip / tar.gz 即可）
+- Tag：新建 `v1.0`（不复用 rc.1，正式版本号干净）
+- Release notes 模板：
+  ```markdown
+  VoxAI 1.0 is now on the Mac App Store 🎉
+
+  Download: https://apps.apple.com/.../id...
+
+  ## What's in 1.0
+  - 中文系统级语音识别（Apple SFSpeechRecognizer）
+  - 录音停止后自动复制到剪贴板
+  - 浮窗常驻最上层，跨 App / 跨 Space / 全屏可见
+  - macOS 13.0+, Apple Silicon + Intel Universal
+
+  ## Source code
+  Full Swift source in this repo. MIT licensed.
+
+  ## v1.x roadmap
+  See [brain/topics/planning/ROADMAP.md](...) — TTS / MCP / 自动 paste 等可能加回。
+  ```
+- 命令：
+  ```bash
+  gh release create v1.0 --repo Ethan-YS/VoxAI \
+    --title "VoxAI 1.0 — Now on the Mac App Store" \
+    --notes-file <release-notes.md>
+  ```
+
+### 11.2 改 Homepage URL 指向 ASC（推荐）
+
+当前 `homepageUrl` = `https://ethan-ys.github.io/VoxAI/privacy.html`（隐私政策）。上架后换成 ASC 产品页：
+
+```bash
+gh repo edit Ethan-YS/VoxAI --homepage 'https://apps.apple.com/<region>/app/voxai/id<APPID>'
+```
+
+ASC URL 在 ASC record 创建时拿到。
+
+### 11.3 Social preview image（推荐，可选）
+
+仓库分享到 Twitter / Slack / Discord 时显示的卡片图。当前是 GitHub 默认（自动生成的纯文字图）。
+
+- 素材：`docs/screenshots/ui-recording.png`（840×840）或 `usage-1.png` 可直接用，或单独做 1280×640
+- **只能 web 上传**：仓库 Settings → General → Social preview → Upload an image
+- gh CLI 不支持
+
+### 11.4 GitHub Discussions（看意愿，不推荐 v1.0）
+
+当前 `hasDiscussionsEnabled = false`。开了之后：
+- ✅ 用户反馈 / 问题不混在 issues 里
+- ❌ 维护成本 +1，社区没起来时会显得空旷
+
+建议：v1.0 阶段保持关闭。等真有用户提 issue 提到吃力时再开。
+
+### 11.5 README badges（可选小事）
+
+[`README.md`](../../../README.md) 头部目前没 badges。可选加：
+
+```markdown
+![macOS](https://img.shields.io/badge/macOS-13.0+-blue)
+![Swift](https://img.shields.io/badge/Swift-5.10+-orange)
+![License](https://img.shields.io/badge/License-MIT-green)
+[![Mac App Store](https://img.shields.io/badge/Mac%20App%20Store-Download-black?logo=apple)](https://apps.apple.com/.../id...)
+```
+
+最后一个 badge 等上架后才能加（需要 ASC URL）。
+

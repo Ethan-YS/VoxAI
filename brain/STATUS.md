@@ -25,6 +25,8 @@
 
 预期 Apple 审核 1-3 天。
 
+**审核通过后**：跑 `ASC_SUBMISSION_DRAFTS.md` §11 GitHub 收尾——建 `v1.0` Release（source-only）/ 改 homepage URL → ASC / Social preview image（web 上传）/ README badges。Topics 已在 release-ready 阶段加完。
+
 ## 卡点 / 待确认
 
 - 🟡 **ASC record 待创建**——只能 Rebecca 操作。无痕窗口 + 中国账号 `hrebeccaqy@icloud.com` 登录。详细 5 步在 `ASC_SUBMISSION_DRAFTS.md` §0
