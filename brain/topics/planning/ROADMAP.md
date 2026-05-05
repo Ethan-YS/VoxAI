@@ -113,11 +113,11 @@
 
 | # | 任务 |
 |---|---|
-| 3.1 | `PrivacyInfo.xcprivacy`——按 Apple 2024+ 强制要求声明：Microphone（用于 ASR，VoxAI 不存储不上传）/ Speech Recognition（系统级，Apple 处理）/ Required Reason API（UserDefaults `CA92.1`）|
-| 3.2 | Apple Silicon 完整用户旅程：⌘R → 第一次启动权限 → 录音 → 暂停 → 重录 → 关浮窗 → 菜单栏重开 → 切到全屏 app → 切到其他 Space → ⌘V 验证 |
-| 3.3 | **Intel Mac 实测**（Rebecca 朋友帮测）—— archive 一份 universal binary，记录跨架构问题（重点验：sampleRate 差异 / 权限弹窗时序 / 启动速度）|
-| 3.4 | 修 Intel 测试发现的问题 |
-| 3.5 | `README.md` 用户文档（替换 Phase 0 时存在的临时占位）|
+| 3.1 | ✅ `PrivacyInfo.xcprivacy` 已建——`NSPrivacyAccessedAPICategoryUserDefaults` reason `CA92.1`；`NSPrivacyTracking=false`；`NSPrivacyCollectedDataTypes=[]` |
+| 3.2 | ✅ Apple Silicon 完整用户旅程通过（2026-05-05，8 项 checklist 全 pass）|
+| 3.3 | ✅ **Intel Mac 实测通过**（2026-05-05，朋友"弘"在 Intel Mac 验证）—— Notarize 后的 .app 双击启动 OK；中文识别准确含标点；DR-020 自动复制 → 粘贴到微信主流程跑通；无崩溃。**Phase 1.5 跨架构 sampleRate 修正在 Intel 真机生效**——担心的 48kHz 偏差未暴露 |
+| 3.4 | ✅ 无 Intel 问题需要修（Phase 3.3 即一次过）|
+| 3.5 | ✅ `README.md` 中英双语用户文档已写 |
 
 ### DoD
 
@@ -132,7 +132,7 @@
 
 | # | 任务 | 备注 |
 |---|---|---|
-| 4.1 | App Icon 集成（**Rebecca 用 Codex 生成**，给图后 Sage 集成进 Assets.xcassets）| 1024×1024 + 各 size 自动生成 |
+| 4.1 | ✅ App Icon 已集成（Codex 生成，全套 16-1024 已进 Assets.xcassets，2026-05-04 commit ff0b55a）|  |
 | 4.2 | App Store 截图（13" + 16" 各一组，至少 3 张：浮窗待机 / 录音中歌词 / 录音停止 transcript 状态）| Apple Silicon 上拍 |
 | 4.3 | 应用描述（**主推中文**）+ 关键词 + 类别 | 详见 `topics/operations/APP_STORE_CHECKLIST.md` |
 | 4.4 | 隐私政策网页（**Sage 做**，托管 GitHub Pages，仓库下 `docs/privacy.html`）| 必写：VoxAI 本身不收集；ASR 由 Apple SFSpeechRecognizer 处理可能经 Apple 服务器（DR-018）；剪贴板写入（DR-020）|

@@ -10,11 +10,28 @@
 
 ## 现在在做什么
 
-🎉 **Phase 2 闭环**（2026-05-05）。v1.0 切片范围内所有 UI / 错误反馈 / 双语都做完了，浮窗 floating + 阴影 + AppIcon 标题栏 + 自动复制剪贴板 主流程在 Apple Silicon 真机验证通过。
+🎉 **Phase 3 闭环**（2026-05-05）。所有上架前的合规 + 跨架构验证完成：
 
-下一步：Phase 3——上架前的合规 + Intel 实测。
+- PrivacyInfo.xcprivacy 已建（声明 UserDefaults / 不追踪 / 不收集）
+- Apple Silicon E2E 8 项 checklist 全过（Rebecca 验）
+- **Intel Mac 实测通过**（朋友"弘"验证：双击启动 OK / 中文识别准 / DR-020 复制到微信工作 / 无崩溃）
+- README.md 中英双语用户文档
+- **Notarize 流程预演成功**——为朋友测试做的 Developer ID 签名 + 公证 + Staple 全程跑通，Phase 4 提审是同一套 toolchain
 
-## 下一步
+下一步：Phase 4——上架资产 + 提审。
+
+## 下一步：Phase 4 上架资产 + 提审
+
+| # | 任务 | 谁做 |
+|---|---|---|
+| 4.1 | App Icon 集成 | ✅ 已完成（Codex 生成，已在 Assets.xcassets，含 1024×1024）|
+| 4.2 | App Store 截图（13" + 16" 各 ≥3 张：浮窗待机 / 录音中歌词 / 录音停止 transcript）| Sage 起草 / Rebecca 截图 |
+| 4.3 | 应用描述（中文主 + 英文）+ 关键词 + 类别 | Sage 起草 / Rebecca 审 |
+| 4.4 | 隐私政策网页（`docs/privacy.html`，托管 GitHub Pages）| Sage |
+| 4.5 | App Store Connect 创建 record（账户登录步骤）→ Sage 准备 archive → upload → 提审 | Rebecca 操作 ASC / Sage 准备包 |
+| 4.6 | App Review Notes（极简版）| Sage 起草 |
+
+## 旧的下一步
 
 按新切片版 ROADMAP Phase 2-4：
 
