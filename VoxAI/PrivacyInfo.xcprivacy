@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTD/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!--
+        VoxAI Privacy Manifest
+        Required by Apple's 2024+ rules. Audited 2026-05-05.
+
+        Quick summary for the App Reviewer:
+          - VoxAI does NOT collect any user data.
+          - VoxAI does NOT track users across apps or websites.
+          - VoxAI does NOT phone home; no telemetry; no analytics.
+          - The only "required-reason" API VoxAI uses is UserDefaults,
+            which only stores this app's own preferences (auto-copy
+            toggle, etc.) under reason CA92.1.
+          - Microphone and Speech Recognition are declared via
+            Info.plist (NS*UsageDescription) — those go through
+            Apple's standard permission flow, not this manifest.
+    -->
+
+    <!-- We do not perform tracking as defined by Apple's policy. -->
+    <key>NSPrivacyTracking</key>
+    <false/>
+
+    <!-- No tracking domains. -->
+    <key>NSPrivacyTrackingDomains</key>
+    <array/>
+
+    <!-- No data collected. v1.0 is purely a local dictation tool;
+         the only place text leaves VoxAI is the system clipboard
+         (user-controlled), which is not "collection" per Apple's
+         definition. -->
+    <key>NSPrivacyCollectedDataTypes</key>
+    <array/>
+
+    <!-- Required Reason API declarations.
+         Apple's authoritative list:
+         https://developer.apple.com/documentation/bundleresources/privacy_manifest_files/describing_use_of_required_reason_api
+    -->
+    <key>NSPrivacyAccessedAPITypes</key>
+    <array>
+        <dict>
+            <!--
+                Category: User Defaults
+                Used by: VoxAI/Models/AppSettings.swift
+                Specifically: stores autoCopyToClipboard, ttsEngine,
+                              recognitionLanguage, etc. under keys
+                              prefixed "voxai.".
+                All values stay in this app's private UserDefaults
+                container; we never read or write defaults that belong
+                to another app.
+            -->
+            <key>NSPrivacyAccessedAPIType</key>
+            <string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+            <key>NSPrivacyAccessedAPITypeReasons</key>
+            <array>
+                <!-- CA92.1: "Declare this reason to access user defaults
+                     that are accessible only to the app itself or by
+                     other apps that are owned by the same team." -->
+                <string>CA92.1</string>
+            </array>
+        </dict>
+    </array>
+</dict>
+</plist>
