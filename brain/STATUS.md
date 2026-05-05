@@ -10,11 +10,9 @@
 
 ## 现在在做什么
 
-🔄 **v1.0 切片到 ASR-only MVP**（2026-05-04）。Rebecca 在 Phase 1 跑通后重新评估范围，拍板**砍掉 TTS（AI 朗读）+ MCP server + 语言切换 UI + 自动 paste**——v1.0 只发"用嘴编程"主流程，让用户先用上看反馈。详见 DR-021~024。
+🎉 **Phase 2 闭环**（2026-05-05）。v1.0 切片范围内所有 UI / 错误反馈 / 双语都做完了，浮窗 floating + 阴影 + AppIcon 标题栏 + 自动复制剪贴板 主流程在 Apple Silicon 真机验证通过。
 
-切片**意外好处**：entitlements 缩到 2 条（`app-sandbox` + `audio-input`）；无第三方 SPM 依赖；R-001/002/004/005/007/009 风险全部🟢已规避；App Review Notes 极简。工期从 ~4 周压到 ~6-7 天。
-
-下一步：Phase 2 切片版第一个工程任务——**Settings UI + 错误反馈**。
+下一步：Phase 3——上架前的合规 + Intel 实测。
 
 ## 下一步
 

@@ -86,9 +86,10 @@
 				};
 			};
 			buildConfigurationList = 8D8985322FA77A25006B99C1 /* Build configuration list for PBXProject "VoxAI" */;
-			developmentRegion = en;
+			developmentRegion = "zh-Hans";
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				"zh-Hans",
 				en,
 				Base,
 			);
@@ -261,8 +262,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 Ethan Huang. All rights reserved.";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "VoxAI 需要麦克风权限以进行实时语音转文字。";
-				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "VoxAI 需要语音识别权限将你的语音转为文字。";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -295,8 +294,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 Ethan Huang. All rights reserved.";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "VoxAI 需要麦克风权限以进行实时语音转文字。";
-				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "VoxAI 需要语音识别权限将你的语音转为文字。";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

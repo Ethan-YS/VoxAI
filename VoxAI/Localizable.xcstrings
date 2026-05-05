@@ -1,0 +1,403 @@
+{
+  "sourceLanguage" : "zh-Hans",
+  "strings" : {
+
+    "Auto-copy to clipboard on stop" : {
+      "comment" : "SettingsView Toggle subtitle (English) — same in both locales since it's already English.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Auto-copy to clipboard on stop" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "Auto-copy to clipboard on stop" } }
+      }
+    },
+
+    "Listening…" : {
+      "comment" : "LyricsView placeholder while recording but no audible speech yet.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Listening…" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "聆听中…" } }
+      }
+    },
+
+    "Paused" : {
+      "comment" : "LyricsView / ControlBar paused state.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Paused" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已暂停" } }
+      }
+    },
+
+    "Press the mic to start" : {
+      "comment" : "IdleContent secondary line (English).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Press the mic to start" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "Press the mic to start" } }
+      }
+    },
+
+    "VoxAI" : {
+      "comment" : "App name — does not localize.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "VoxAI" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "VoxAI" } }
+      }
+    },
+
+    "已复制" : {
+      "comment" : "Title-bar capsule shown briefly after auto-copy or manual copy.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Copied" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已复制" } }
+      }
+    },
+
+    "关闭浮窗" : {
+      "comment" : "Tooltip on the dialog's close (×) button.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Close window" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "关闭浮窗" } }
+      }
+    },
+
+    "按下话筒开始说话" : {
+      "comment" : "IdleContent primary line.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Press the mic to start speaking" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "按下话筒开始说话" } }
+      }
+    },
+
+    "开始录音" : {
+      "comment" : "Tooltip on the idle mic button.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Start recording" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "开始录音" } }
+      }
+    },
+
+    "清空" : {
+      "comment" : "Tooltip on the trash button (clear transcript).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Clear" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "清空" } }
+      }
+    },
+
+    "复制到剪贴板" : {
+      "comment" : "Tooltip on the manual copy button (finished state).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Copy to clipboard" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "复制到剪贴板" } }
+      }
+    },
+
+    "重新录音" : {
+      "comment" : "Tooltip on the re-record mic button (finished state).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Record again" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "重新录音" } }
+      }
+    },
+
+    "暂停" : {
+      "comment" : "Tooltip on the pause button (recording state).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pause" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "暂停" } }
+      }
+    },
+
+    "继续" : {
+      "comment" : "Tooltip on the resume button (paused state).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Resume" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "继续" } }
+      }
+    },
+
+    "停止并复制到剪贴板" : {
+      "comment" : "Tooltip on the stop button (recording state).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Stop and copy to clipboard" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "停止并复制到剪贴板" } }
+      }
+    },
+
+    "我知道了 / OK" : {
+      "comment" : "Error alert acknowledgement button.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "OK" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "我知道了" } }
+      }
+    },
+
+    "麦克风或语音识别权限被拒绝" : {
+      "comment" : "Error alert title — permission denial.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Microphone or Speech Recognition permission denied" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "麦克风或语音识别权限被拒绝" } }
+      }
+    },
+
+    "语音识别不可用" : {
+      "comment" : "Error alert title — recognizer not available.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Speech recognition unavailable" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "语音识别不可用" } }
+      }
+    },
+
+    "录音引擎启动失败" : {
+      "comment" : "Error alert title — audio engine start failure.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Audio engine failed to start" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "录音引擎启动失败" } }
+      }
+    },
+
+    "有错误待处理（点击 OK 关闭弹窗后可重试）" : {
+      "comment" : "Tooltip on the title-bar warning triangle.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Error pending (click OK to dismiss and retry)" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "有错误待处理（点击 OK 关闭弹窗后可重试）" } }
+      }
+    },
+
+    "VoxAI 错误" : {
+      "comment" : "Menu-bar accessibility label when there's an active error.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "VoxAI error" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "VoxAI 错误" } }
+      }
+    },
+
+    "有错误 / Error" : {
+      "comment" : "MenuBar status row text in the error state.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Error" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "有错误" } }
+      }
+    },
+
+    "待机 / Idle" : {
+      "comment" : "MenuBar status row — idle.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Idle" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "待机" } }
+      }
+    },
+
+    "录音中 / Recording" : {
+      "comment" : "MenuBar status row — recording.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recording" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "录音中" } }
+      }
+    },
+
+    "已暂停 / Paused" : {
+      "comment" : "MenuBar status row — paused.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Paused" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已暂停" } }
+      }
+    },
+
+    "显示浮窗 / Show Dialog" : {
+      "comment" : "MenuBar Show Dialog button label.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Show Dialog" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "显示浮窗" } }
+      }
+    },
+
+    "设置 / Settings" : {
+      "comment" : "MenuBar Settings button label.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Settings" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "设置" } }
+      }
+    },
+
+    "退出 VoxAI / Quit" : {
+      "comment" : "MenuBar Quit button label.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Quit VoxAI" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "退出 VoxAI" } }
+      }
+    },
+
+    "录音 / Recording" : {
+      "comment" : "SettingsView section header — Recording.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recording" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "录音" } }
+      }
+    },
+
+    "关于 / About" : {
+      "comment" : "SettingsView section header — About.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "About" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "关于" } }
+      }
+    },
+
+    "版本 / Version" : {
+      "comment" : "SettingsView About row — version.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Version" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "版本" } }
+      }
+    },
+
+    "隐私政策 / Privacy Policy" : {
+      "comment" : "SettingsView About row — privacy policy link.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Privacy Policy" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "隐私政策" } }
+      }
+    },
+
+    "GitHub 仓库 / Source Code" : {
+      "comment" : "SettingsView About row — source code link.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Source Code (GitHub)" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "GitHub 仓库" } }
+      }
+    },
+
+    "录音停止后自动复制到剪贴板" : {
+      "comment" : "SettingsView Toggle title — auto-copy on stop.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Auto-copy to clipboard on stop" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "录音停止后自动复制到剪贴板" } }
+      }
+    },
+
+    "关闭后，录音停止时不会自动复制——你需要点浮窗里的复制按钮。" : {
+      "comment" : "SettingsView Toggle help — explains what disabling does.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "When disabled, transcripts won't be auto-copied — you'll need to click the copy button in the dialog." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "关闭后，录音停止时不会自动复制——你需要点浮窗里的复制按钮。" } }
+      }
+    },
+
+    "默认开启。这是 VoxAI 的核心体验——说完话立即可以在 Claude / Cursor 里 ⌘V 粘贴。" : {
+      "comment" : "SettingsView Recording section footer.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enabled by default. This is the core experience — paste with ⌘V into Claude / Cursor immediately after you stop speaking." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "默认开启。这是 VoxAI 的核心体验——说完话立即可以在 Claude / Cursor 里 ⌘V 粘贴。" } }
+      }
+    },
+
+    "VoxAI 由 Ethan 制作。MIT 协议开源。\n感谢使用。" : {
+      "comment" : "SettingsView About section footer.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Built by Ethan. MIT-licensed open source.\nThanks for using VoxAI." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "VoxAI 由 Ethan 制作。MIT 协议开源。\n感谢使用。" } }
+      }
+    },
+
+    "更多设置即将到来" : {
+      "comment" : "SettingsView coming-soon card title.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "More settings coming soon" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "更多设置即将到来" } }
+      }
+    },
+
+    "v1.0 聚焦「用嘴编程」主流程。基于早期用户反馈，未来版本会评估加入语言切换、AI 朗读、MCP 服务等高级功能。" : {
+      "comment" : "SettingsView coming-soon Chinese paragraph.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "v1.0 focuses on the dictation flow. Based on early feedback, future versions will evaluate language switching, AI read-aloud, MCP server, and other advanced features." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "v1.0 聚焦「用嘴编程」主流程。基于早期用户反馈，未来版本会评估加入语言切换、AI 朗读、MCP 服务等高级功能。" } }
+      }
+    },
+
+    "v1.0 focuses on the core dictation flow. Based on early user feedback, future versions will evaluate adding language switching, AI read-aloud, MCP server, and other advanced features." : {
+      "comment" : "SettingsView coming-soon English paragraph (kept identical in both locales).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "v1.0 focuses on the core dictation flow. Based on early user feedback, future versions will evaluate adding language switching, AI read-aloud, MCP server, and other advanced features." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "v1.0 focuses on the core dictation flow. Based on early user feedback, future versions will evaluate adding language switching, AI read-aloud, MCP server, and other advanced features." } }
+      }
+    },
+
+    "语音识别器不可用（系统未支持当前语言或正在初始化）" : {
+      "comment" : "TranscriptionError: SFSpeechRecognizer is nil or not yet ready.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Speech recognizer is unavailable (the current language isn't supported or it's still initializing)." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "语音识别器不可用（系统未支持当前语言或正在初始化）" } }
+      }
+    },
+
+    "未获得麦克风或语音识别授权——请在系统设置 → 隐私与安全性中授予权限" : {
+      "comment" : "TranscriptionError: user denied microphone or speech recognition permission.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Microphone or Speech Recognition permission was denied. Please grant access in System Settings → Privacy & Security." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "未获得麦克风或语音识别授权——请在系统设置 → 隐私与安全性中授予权限" } }
+      }
+    },
+
+    "音频引擎启动失败：%@" : {
+      "comment" : "TranscriptionError: AVAudioEngine.start() threw. %@ = underlying error description.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Audio engine failed to start: %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "音频引擎启动失败：%@" } }
+      }
+    },
+
+    "无法创建语音识别请求" : {
+      "comment" : "TranscriptionError: SFSpeechAudioBufferRecognitionRequest construction failed.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Could not create a speech recognition request." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "无法创建语音识别请求" } }
+      }
+    }
+
+  },
+  "version" : "1.0"
+}

@@ -46,13 +46,26 @@ enum TranscriptionError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .speechRecognizerUnavailable:
-            return "语音识别器不可用（系统未支持当前语言或正在初始化）"
+            return NSLocalizedString(
+                "语音识别器不可用（系统未支持当前语言或正在初始化）",
+                comment: "TranscriptionError: SFSpeechRecognizer is nil or not yet ready."
+            )
         case .notAuthorized:
-            return "未获得麦克风或语音识别授权——请在系统设置 → 隐私与安全性中授予权限"
+            return NSLocalizedString(
+                "未获得麦克风或语音识别授权——请在系统设置 → 隐私与安全性中授予权限",
+                comment: "TranscriptionError: user denied microphone or speech recognition permission."
+            )
         case .audioEngineStartFailed(let e):
-            return "音频引擎启动失败：\(e.localizedDescription)"
+            let template = NSLocalizedString(
+                "音频引擎启动失败：%@",
+                comment: "TranscriptionError: AVAudioEngine.start() threw. %@ = underlying error description."
+            )
+            return String(format: template, e.localizedDescription)
         case .recognitionRequestUnavailable:
-            return "无法创建语音识别请求"
+            return NSLocalizedString(
+                "无法创建语音识别请求",
+                comment: "TranscriptionError: SFSpeechAudioBufferRecognitionRequest construction failed."
+            )
         }
     }
 }

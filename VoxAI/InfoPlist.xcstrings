@@ -1,0 +1,42 @@
+{
+  "sourceLanguage" : "zh-Hans",
+  "strings" : {
+    "NSMicrophoneUsageDescription" : {
+      "comment" : "Privacy prompt shown the first time VoxAI requests microphone access.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VoxAI needs microphone access to convert your speech into text in real time."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VoxAI 需要麦克风权限以进行实时语音转文字。"
+          }
+        }
+      }
+    },
+    "NSSpeechRecognitionUsageDescription" : {
+      "comment" : "Privacy prompt shown the first time VoxAI requests Speech Recognition access. Apple's framework handles the recognition; VoxAI itself doesn't store audio.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VoxAI uses Apple's Speech Recognition to turn your voice into text. Audio may be processed on Apple's servers per Apple's privacy policy."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VoxAI 使用 Apple 系统语音识别将你的语音转为文字。音频可能由 Apple 服务器按 Apple 隐私政策处理。"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

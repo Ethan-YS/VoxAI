@@ -92,7 +92,7 @@
 | 2.1 | ✅ `VoxAI/Views/SettingsView.swift`——v1.0 极简版（autoCopy toggle + 关于：版本号 + 隐私政策链接 + GitHub 链接 + v1.x 占位提示）|
 | 2.2 | ✅ VoxAIApp.swift `SettingsPlaceholderView` → 真 `SettingsView`；MenuBarExtra 加 `SettingsLink`（macOS 14+）/ `showSettingsWindow:` selector fallback（macOS 13）|
 | 2.3 | ✅ 错误反馈统一路径：`TranscriptionService.requestPermissions` 失败时 set `lastError`；DialogView 用 `errorBinding` 弹 alert（覆盖 4 种 TranscriptionError case）；DialogTitleBar + MenuBarExtra label + MenuBarContent 状态行都根据 `lastError != nil` 显示 warning |
-| 2.4 | Localizable.xcstrings 中英双语：所有 UI 文字 + Info.plist `NSMicrophoneUsageDescription` / `NSSpeechRecognitionUsageDescription` 都加英文版 |
+| 2.4 | ✅ Localizable.xcstrings + InfoPlist.xcstrings 中英双语：developmentRegion 改 zh-Hans；39 条 UI 字符串提供 en + zh-Hans 翻译；隐私描述从 `INFOPLIST_KEY_*` 移到 `InfoPlist.xcstrings`；TranscriptionError 用 `NSLocalizedString`；中英混排菜单标签按 locale 拆分（"显示浮窗 / Show Dialog" 在英文系统显示 "Show Dialog"）|
 | 2.5 | ✅ `VoxAI/VoxAI.entitlements` 已移除 `network.client` + `network.server`（pivot commit 里完成）|
 
 ### DoD
