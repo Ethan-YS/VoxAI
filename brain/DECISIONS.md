@@ -37,6 +37,28 @@
 
 ---
 
+### 2026-05-05 — ASC App 名称改为"VoxAI - 用嘴编程"（DR-027）
+
+- **决定**：App Store Connect 上 macOS 平台的 App 名称（即 App Store 显示标题）从原计划 `VoxAI`（5 字符）改为 `VoxAI - 用嘴编程`（18 字符）。Bundle ID `com.ethanys.voxai`、GitHub 仓库名 `VoxAI`、应用内 UI（CFBundleName、菜单栏、浮窗标题、Logo）、品牌资产（README、privacy.html、社交链接）**全部不变**——这次改名仅限 ASC 一个字段。
+- **为什么**：
+  - **`VoxAI` 已被占用**：Beijing InOrange Technology Co., Ltd. 的同名 iOS App（[ID `6448861780`](https://apps.apple.com/us/app/voxai/id6448861780)）以"Designed for iPhone"形式跑在 Mac M1+ 上，全球范围 lock 了 macOS 名称（App Store 名称约束 = 全球 per-platform 唯一）
+  - 该 App 上次更新 **2023-06-27**（3 年没动，疑似 abandoned），但 ASC 的名称保护仍然生效，纯靠名字注册 → 我们抢不到
+  - **商标投诉路径不可行**：Beijing InOrange 没注册 USPTO/CNIPA 商标（只是 ASC 名称保护），但我们也没注册，**双方都没商标 → 先到先得**
+  - 加修饰词的方案保品牌（"VoxAI"）+ 加差异化 slogan（"用嘴编程"，DR-015 的产品定位 tagline），对 SEO 反而有利——用户搜 "用嘴编程" / "Claude Code 中文语音" / "VoxAI" 都能 surface
+  - 实测：`VoxAI - 用嘴编程` 一次过 ASC 名称校验（说明 ASC 不只看前缀模糊匹配，而是整串字符串唯一性）
+- **被否决的替代方案**：
+  - **改 Bundle ID + GitHub 仓库 + 全网品牌叫别的（如 `VoxCode` / `Voxie`）**：改 Bundle ID 是大手术（entitlements / Info.plist / sandbox container 全受影响 / GitHub 仓库 rename / Logo 重做 / privacy.html 全改），且没有充分理由——Beijing InOrange 没商标 → 我们继续用 VoxAI 品牌完全合法
+  - **`VoxAI Dictation`**：Sage 一开始推荐——干净、Apple 几乎一定接受、不冲突。被否决因为弱化"AI 编程"差异化定位（DR-015），而 `VoxAI - 用嘴编程` 把产品 tagline 直接钉在 App Store 标题上更强
+  - **商标投诉占名字**：不持有商标，路径不可行
+  - **完全放弃 VoxAI 品牌**：太激进
+- **影响范围**：
+  - **改**：[`brain/topics/operations/ASC_SUBMISSION_DRAFTS.md`](topics/operations/ASC_SUBMISSION_DRAFTS.md) §1（App 名称 + 副标题需要重设计避免和 App 名重复"用嘴编程"）
+  - **不变**：Bundle ID `com.ethanys.voxai` / GitHub `Ethan-YS/VoxAI` / CFBundleName "VoxAI" / 应用内所有 UI 文字 / Logo / privacy.html / README / social
+  - **副作用**：副标题字段需要重新设计（不能含"用嘴编程"避免冗余）。候选见 §1，待 Rebecca 拍板
+- **触发场景**：2026-05-05 Rebecca 在 ASC 创建 macOS App record，第一次填 `VoxAI - 用嘴编程`（18 字符）报"验证错误"红条但具体错误未截到；改填纯 `VoxAI` 时 ASC 明确报 "名称已被使用"；最后回到 `VoxAI - 用嘴编程` 一次过——证明第一次报错可能是其他字段（不是名称冲突），整串字符串是 unique 的。Sage 调度的 general-purpose subagent 联网验证了占用方身份 + 商标状态 + 协议非阻塞结论
+
+---
+
 ### 2026-05-05 — GitHub 仓库重组（DR-026）
 
 - **决定**：旧 `Ethan-YS/VoxAI` 仓（实际内容是 VoxSage 全功能版的 GitHub 镜像，含 Python + Electron + 声纹分离）改名为 `Ethan-YS/VoxSage` + 改成 private。新建 `Ethan-YS/VoxAI` public 仓承载 v1.0 发布版的代码（本地 31 commits 一次性 push，打 tag `v1.0-rc.1`）。
