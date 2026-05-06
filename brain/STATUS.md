@@ -10,32 +10,47 @@
 
 ## 现在在做什么
 
-**v1.0 release-ready，等 Rebecca 在 ASC 创建 app record**（2026-05-05）。所有工程 / 合规 / 资产工作完成；GitHub 仓库结构搞定（VoxAI 新仓 public、VoxSage 旧仓 private）；Notarize 工具链端到端预演通过；隐私政策 LIVE 在 GitHub Pages。
-
-**唯一阻塞**：Apple Developer Program 的中国账号（`hrebeccaqy@icloud.com`）登录 ASC → My Apps → +新 App → 创建 record（详细步骤在 `topics/operations/ASC_SUBMISSION_DRAFTS.md` §0–§7）。这件事 Sage 做不了——必须 Rebecca 在 ASC 网页操作。
+**Phase 4.5 archive + export 跑完，build 已 ready**（2026-05-06）。ASC record `VoxAI - 用嘴编程` 创建成功（DR-027 解决 `VoxAI` 名字冲突）。`build/Export-AppStore/VoxAI.pkg`（3.6 MB，Apple Distribution 签 + Universal Binary + TeamIdentifier YNMBJ5H736）准备就绪。
 
 ## 下一步
 
-**Rebecca 创建 ASC record 后告诉 Sage**，Sage 一气跑完：
+**两条线并行**：
 
-1. **Phase 4.5 archive (`method=app-store`)** ——`xcodebuild archive` + `xcodebuild -exportArchive` 用 app-store method。同 `developer-id` toolchain（Notarize 时已经预演过），换 method 即可
-2. **upload to ASC** —— `xcrun altool --upload-app` 或 `xcrun notarytool` （ASC 上传不需要 notarize，App Store 的 review pipeline 会自己做）。或者用 Transporter app（Rebecca 操作）
-3. **填 ASC 字段**（描述 / 关键词 / 截图 / 隐私 URL / Review Notes）—— 全部草稿在 `ASC_SUBMISSION_DRAFTS.md`，复制粘贴即可
-4. **Submit for Review**
+🅰️ **Rebecca 在 ASC 网页填字段**（按左侧导航顺序，草稿全在 `ASC_SUBMISSION_DRAFTS.md` §1-§11）：
+- 综合 → App 信息（副标题 / 类别 / 隐私政策 URL）
+- 营利 → 价格与销售范围（免费 + 全部地区）
+- 1.0 版本页（截图 / 描述 / 关键词 / 推广文本 / URL / What's New）
+- 信任和安全性 → App 隐私（**§10 = Data Not Collected**）
+- 综合 → App 审核（Review Notes 粘 §8）
+- 出口合规（**§11 = Not using encryption**）
 
-预期 Apple 审核 1-3 天。
+🅱️ **build 上传**（Rebecca 用 Transporter App 操作，详细步骤 §13）：
+1. 装 Mac App Store 的 Transporter（免费）
+2. 用 ASC 中国账号 `hrebeccaqy@icloud.com` 登录
+3. 拖 `build/Export-AppStore/VoxAI.pkg` 进 → 点 Deliver
+4. 等 ASC 处理 5-30 分钟
+5. ASC 1.0 版本页"构建版本"区选刚上传的 build
 
-**审核通过后**：跑 `ASC_SUBMISSION_DRAFTS.md` §11 GitHub 收尾——建 `v1.0` Release（source-only）/ 改 homepage URL → ASC / Social preview image（web 上传）/ README badges。Topics 已在 release-ready 阶段加完。
+A 线 + B 线都完成 → 点右上角 "**添加以供审核**" → 提交。预期 Apple 审核 1-3 天。
+
+**审核通过后**：跑 `ASC_SUBMISSION_DRAFTS.md` §14 GitHub 收尾——建 `v1.0` Release / 改 homepage URL → ASC / Social preview image / README badges。
 
 ## 卡点 / 待确认
 
-- 🟡 **ASC record 待创建**——只能 Rebecca 操作。无痕窗口 + 中国账号 `hrebeccaqy@icloud.com` 登录。详细 5 步在 `ASC_SUBMISSION_DRAFTS.md` §0
-- 🟢 GitHub Pages privacy.html LIVE：`https://ethan-ys.github.io/VoxAI/privacy.html`（HTTP 200，双语内容验证）
-- 🟢 Notarize toolchain 验证通过（朋友 Intel Mac 测试用同一套）
+- 🟢 ASC record 创建成功（macOS 1.0，"VoxAI - 用嘴编程"，Bundle `com.ethanys.voxai`）
+- 🟢 archive + export 跑通（Apple Distribution 签 + Universal）；LSApplicationCategoryType 已修
+- 🟡 **build 待 Rebecca 用 Transporter 上传**
+- 🟡 **副标题 + App 隐私 + 出口合规字段待 Rebecca 填**（草稿就绪）
+- 🟡 AppIcon "unassigned child" 警告（macOS 14+ light/dark/tinted variants 缺失）—— 不阻塞 archive，但 Reviewer 可能 flag。v1.0 暂不补，v1.x 时加
+- 🟢 GitHub Pages privacy.html LIVE
+- 🟢 Notarize toolchain 验证通过
 
 ## 未提交的改动
 
-刚刚提交了一波（更新项目脑 + HANDOFF + DECISIONS DR-025/026 + MAP + ROADMAP）。本地和 origin/main 同步。
+- `VoxAI.xcodeproj/project.pbxproj`：加 `INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity"` 到 Debug + Release configs（修 ASC archive warning）
+- brain：`STATUS.md` 自身 + `topics/operations/ASC_SUBMISSION_DRAFTS.md` 重组 §10/§11/§12/§13/§14（加 App 隐私 + 出口合规 + Build 上传指引；GitHub 收尾 renumber）
+
+下一次 commit：`Phase 4.5: archive + export ready (Apple Distribution signed)`。本地 ahead origin/main 2 commits（DR-027 + GitHub housekeeping），还没 push。
 
 ## 最近一次会话做了什么
 

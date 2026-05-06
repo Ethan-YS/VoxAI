@@ -299,7 +299,63 @@ README / 项目文档用的浮窗局部素材（840×840）保留在 `docs/scree
 
 ---
 
-## 10. 提审前最后核对
+## 10. App 隐私（Privacy Details）填写指引
+
+> ASC 位置：信任和安全性 → **App 隐私**。这是 App Store "营养标签"（隐私详情卡片）的来源——上架后用户在 App Store 商品页能看到。
+
+### 关键概念
+
+ASC 问的是 **"你的 App 自己收集了什么数据"**，而不是 "你用的系统框架处理了什么"。
+- VoxAI 不存储 / 不上传 / 不传输任何数据 → 答 **"No data collected"**
+- 麦克风音频喂给 Apple 系统级 SFSpeechRecognizer 框架处理后立即丢弃；识别结果显示在浮窗 + 写入系统 Pasteboard。这都是 macOS 系统行为，**不是 VoxAI 自己收集**
+
+### 表单选择
+
+| 问题 | 选 | 理由 |
+|---|---|---|
+| 你的 App 是否从这个 App 收集任何数据？ | **No** | VoxAI 没有自己的服务器、没有分析 SDK、没有 telemetry、没有任何数据持久化（除 UserDefaults 仅存本机配置）|
+| 是否使用任何 SDK 跨 App 或网站追踪用户？ | **No** | v1.0 砍掉所有第三方 SPM 依赖（DR-022），没有 SDK |
+
+选 No 之后 ASC 跳过详细类别问卷（联系方式 / 健康 / 金融 / 位置等）。
+
+### 营养标签预览结果
+
+应该显示 **"Data Not Collected"**（数据未收集）—— App Store 上是干净的"无追踪"标签。
+
+---
+
+## 11. 出口合规（Encryption / Export Compliance）
+
+> ASC 位置：1.0 版本页底部 **App 加密** 区域（首次提审时跳出 modal 询问）。
+
+### 关键事实
+
+- VoxAI v1.0 entitlements 没有 `network.client` / `network.server`（DR-022 切了之后）
+- 没有任何自己的加密代码 / HTTPS / TLS / 自定义加密算法
+- 完全依赖 macOS 系统框架（SFSpeechRecognizer、AVAudioEngine、Pasteboard）
+
+### 表单选择
+
+| 问题 | 选 | 理由 |
+|---|---|---|
+| 你的 App 是否使用加密？ | **No** | VoxAI 不直接调用任何加密 API（即使 macOS 系统框架内部用了，也不归我们声明）|
+
+选 "No" 后 ASC 跳过 ECCN / BIS 申报问卷。
+
+### Info.plist 标记（可选优化）
+
+可以在项目里加 `ITSAppUsesNonExemptEncryption = NO` 让 ASC 永久跳过这个问题（每次新版本不再问）。
+
+```diff
+# project.pbxproj 的两个 buildSettings (Debug + Release):
++ INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+```
+
+v1.0 没加（手动每次答 No 也行）。v1.x 时 Sage 顺手补上。
+
+---
+
+## 12. 提审前最后核对
 
 - [ ] 隐私政策 URL 真实可访问（GitHub Pages 启用）
 - [ ] 截图 3 张已上传 ASC，符合标准尺寸
@@ -311,17 +367,58 @@ README / 项目文档用的浮窗局部素材（840×840）保留在 `docs/scree
 - [ ] 版本号 = 1.0，build 号 = 1（首次提审）
 - [ ] What's New = "首发" / "Initial release"
 - [ ] 内容分级（Age Rating）= 4+（无敏感内容）
-- [ ] 出口合规（Export Compliance）：使用标准加密 → 通常勾"使用 Apple 提供的标准 HTTPS / TLS"，但 v1.0 没用网络，可以勾"Not designed to use cryptography"
+- [ ] App 隐私 = Data Not Collected（§10）
+- [ ] 出口合规 = Not using encryption（§11）
 
-提审包：用 `method=app-store` 重跑 archive → upload via Transporter 或 Xcode Organizer。
+提审包：`build/Export-AppStore/VoxAI.pkg`（已 Apple Distribution 签名 + Universal Binary）。上传方式见 §13。
 
 ---
 
-## 11. 提审通过后的 GitHub 收尾
+## 13. Build 上传到 ASC
+
+> Sage 已 archive + export 完成，产物 `build/Export-AppStore/VoxAI.pkg`（3.6 MB，Apple Distribution 签名，TeamIdentifier `YNMBJ5H736`）。
+
+### 上传方式（推荐顺序）
+
+**A. Transporter（macOS App Store 免费 App，最简单）** ★ 推荐
+1. 安装 Transporter（Mac App Store 搜 "Transporter" by Apple，免费）
+2. 启动后用 ASC 中国账号 `hrebeccaqy@icloud.com` 登录
+3. 拖 `build/Export-AppStore/VoxAI.pkg` 进 Transporter 窗口
+4. Transporter 自动 verify + 提示上传 → 点 "Deliver"
+5. 等 5-15 分钟，上传 + ASC 服务端处理
+
+**B. xcrun altool（命令行）**
+- 需要 ASC API Key（在 ASC → 用户和访问 → 集成 → App Store Connect API 创建一个）
+- 命令：`xcrun altool --upload-app -f build/Export-AppStore/VoxAI.pkg -t macos --apiKey <KEY_ID> --apiIssuer <ISSUER_ID>`
+- v1.0 首次上传不必走这条；Transporter 更直观
+
+**C. xcodebuild -exportArchive --upload**
+- Xcode 16+ 的新选项，但需要 ASC API Key
+- 同 B，v1.0 不必走
+
+### 上传后
+
+1. ASC 服务端处理 5-30 分钟（构建版本扫描 + 加密合规 + 内部 validation）
+2. 处理完成后在 ASC → App → 1.0 版本页面 → "构建版本" 区会出现可选 build
+3. 选择 build → 填出口合规答案（如果 Info.plist 没标）→ 保存
+4. 完成所有 §10/§11/§12 字段 → 点右上角 "**添加以供审核**" → 提交
+
+### 上传遇到的常见错误
+
+| 错误 | 原因 | 解决 |
+|---|---|---|
+| "ITMS-90238: Invalid Signature" | 签名不是 Apple Distribution | 重 archive，verify `codesign -dvvv` 显示 Apple Distribution |
+| "ITMS-90713: Missing Info.plist value LSApplicationCategoryType" | 缺类别 | 已在 v1.0 修（commit `<this commit>`）|
+| "ITMS-90683: Missing Purpose String" | NSMicrophoneUsageDescription 等缺 | check INFOPLIST_KEY_NS*UsageDescription |
+| "Bundle is invalid" / "Asset Catalog Compiler" | AppIcon 配置 | actool 警告 "unassigned child"——v1.0 这个不是 blocking，但反复出现可考虑补 light/dark/tinted variants |
+
+---
+
+## 14. 提审通过后的 GitHub 收尾
 
 > 记录于 2026-05-05，等 Apple 审核通过后做。Topics 已在 release-ready 阶段加完（macos / swift / swiftui / voice-input / dictation / speech-to-text / chinese / claude-code / cursor / accessibility-app / app-store / app-sandbox），此节只列**上架后**的事项。
 
-### 11.1 建 GitHub Release（推荐）
+### 14.1 建 GitHub Release（推荐）
 
 `v1.0-rc.1` tag 已存在但**没有对应 Release**。上架通过后建一个正式 `v1.0`：
 
@@ -353,7 +450,7 @@ README / 项目文档用的浮窗局部素材（840×840）保留在 `docs/scree
     --notes-file <release-notes.md>
   ```
 
-### 11.2 改 Homepage URL 指向 ASC（推荐）
+### 14.2 改 Homepage URL 指向 ASC（推荐）
 
 当前 `homepageUrl` = `https://ethan-ys.github.io/VoxAI/privacy.html`（隐私政策）。上架后换成 ASC 产品页：
 
@@ -363,7 +460,7 @@ gh repo edit Ethan-YS/VoxAI --homepage 'https://apps.apple.com/<region>/app/voxa
 
 ASC URL 在 ASC record 创建时拿到。
 
-### 11.3 Social preview image（推荐，可选）
+### 14.3 Social preview image（推荐，可选）
 
 仓库分享到 Twitter / Slack / Discord 时显示的卡片图。当前是 GitHub 默认（自动生成的纯文字图）。
 
@@ -371,7 +468,7 @@ ASC URL 在 ASC record 创建时拿到。
 - **只能 web 上传**：仓库 Settings → General → Social preview → Upload an image
 - gh CLI 不支持
 
-### 11.4 GitHub Discussions（看意愿，不推荐 v1.0）
+### 14.4 GitHub Discussions（看意愿，不推荐 v1.0）
 
 当前 `hasDiscussionsEnabled = false`。开了之后：
 - ✅ 用户反馈 / 问题不混在 issues 里
@@ -379,7 +476,7 @@ ASC URL 在 ASC record 创建时拿到。
 
 建议：v1.0 阶段保持关闭。等真有用户提 issue 提到吃力时再开。
 
-### 11.5 README badges（可选小事）
+### 14.5 README badges（可选小事）
 
 [`README.md`](../../../README.md) 头部目前没 badges。可选加：
 
