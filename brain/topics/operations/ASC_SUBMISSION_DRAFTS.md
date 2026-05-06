@@ -264,12 +264,17 @@ Privacy policy: https://ethan-ys.github.io/VoxAI/privacy.html
 
 ## 9. 截图清单（Phase 4.2）
 
-ASC macOS app 接受的尺寸（必须是其中之一）：
+ASC macOS app 接受的尺寸（必须是其中之一，**严格白名单**）：
 - 1280×800
 - 1440×900
-- **2560×1600**（现代 13" MBP Retina）
-- **2880×1800**（现代 14"/16" MBP Retina）
-- 3024×1964
+- **2560×1600**（13" MBP Retina）
+- **2880×1800**（5K display / 16:10 高分辨率）
+
+> ⚠️ **陷阱**：14" MacBook Pro 原生分辨率是 3024×1964（比例 1.539:1，不是 16:10），**不在 ASC 白名单**。ASC 上传会报"截屏尺寸存在错误"。需要 crop + resize 到 2880×1800（最高质量）。命令：
+> ```bash
+> sips --cropToHeightWidth 1890 3024 input.png --out tmp.png  # center-crop to 16:10
+> sips -Z 2880 tmp.png --out output.png                       # downscale to 2880×1800
+> ```
 
 每种尺寸至少 1 张，最多 10 张。建议提交 ≥3 张。
 
@@ -283,17 +288,18 @@ ASC macOS app 接受的尺寸（必须是其中之一）：
 - 截后用 macOS 自带 Preview 裁剪到目标尺寸
 - 不要在截图里露出私人信息（聊天窗口 / 邮箱 / 文档名）
 
-**当前状态（2026-05-05 截图就绪）**：
+**当前状态（2026-05-06 截图就绪，已 resize 到 2880×1800）**：
 
-ASC 用全屏截图（3024×1964，符合 ASC "13"/16" Retina" 尺寸标准）：
 | 文件 | 内容 | 尺寸 |
 |---|---|---|
-| `docs/screenshots/asc-1-floating.png` | 浮窗悬浮在桌面壁纸（湖景）—— 展示常驻特性 | 3024×1964 (5.9MB) |
-| `docs/screenshots/asc-2-recording.png` | 浮窗录音中歌词 + 旁边 Claude Code 窗口 —— 展示用嘴编程主场景 | 3024×1964 (752KB) |
-| `docs/screenshots/asc-3-finished.png` | 浮窗完成态（绿色 ✓ "已复制" + 重录按钮）+ 旁边 Claude Code —— 展示 DR-020 自动复制结果 | 3024×1964 (692KB) |
+| `docs/screenshots/asc-1-floating.png` | 浮窗悬浮在桌面壁纸（湖景）—— 展示常驻特性 | 2880×1800 (5.3MB) |
+| `docs/screenshots/asc-2-recording.png` | 浮窗录音中歌词 + 旁边 Claude Code 窗口 —— 展示用嘴编程主场景 | 2880×1800 (761KB) |
+| `docs/screenshots/asc-3-finished.png` | 浮窗完成态（绿色 ✓ "已复制" + 重录按钮）+ 旁边 Claude Code —— 展示 DR-020 自动复制结果 | 2880×1800 (695KB) |
 
 3 张连成一个故事：**桌面悬浮 → 录音中 → 自动复制完成准备粘贴**。
-asc-1 偏大（5.9MB）是因为桌面壁纸细节多，ASC 上限 8MB 安全。
+全部 < 8MB ASC 上限。
+
+> 历史：原始截图 3024×1964（14" MBP 原生）2026-05-06 ASC 上传被拒，sips center-crop + resize 到 2880×1800。损失：上下边各 ~37px（菜单栏边缘 + dock 部分）。git 历史保留 3024×1964 旧版作 reference。
 
 README / 项目文档用的浮窗局部素材（840×840）保留在 `docs/screenshots/ui-{idle,recording,finished}.png`。
 
