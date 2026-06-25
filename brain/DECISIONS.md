@@ -37,6 +37,27 @@
 
 ---
 
+### 2026-06-25 — 会议模式 / 实时多人 diarization / MCP 旁听 这条 v1.x 线移交 VoxSage（DR-028）
+
+- **决定**：Rebecca 设想的"和别人面对面谈事时，AI 实时旁听 + 多人说话人区分（谁说了什么）+ 判断对方说的靠不靠谱"这条功能线，**不在 VoxAI（App Store 版）做，移交 VoxSage 旧仓**。VoxAI 保持 v1.0 ASR-only 定位，ROADMAP 里原列的"v1.1 = 会议模式"从 VoxAI 路线移除。先在 VoxSage 本地跑顺、自用验证价值，再谈商业化/上架。
+- **为什么**：
+  - 这是"多人 diarization + 实时 + AI 持续旁听"的**重场景**，和 VoxAI"为上架砍到极简（只 2 条 entitlement）"的定位结构性冲突
+  - **VoxSage 已有 diarization 栈**：`src/stt/diarize.py` + whisperx/pyannote + venv + models —— 多人区分不是从零起
+  - **VoxSage 无 App Sandbox**：能跑 Python pyannote；VoxAI 纯 Swift（DR-003）做不到本地 SOTA diarization
+  - **隐私/法务**：多人 diarization 若走云 API = 把对方声音实时上传第三方，触及录他人对话的知情同意 / 录音法（撞 Rebecca 的法务洁癖）。VoxSage 本地 pyannote 不上传，最干净
+  - **用户群**：接 Claude Code / Codex，用户是开发者自用，不是 App Store 大众 —— 与 VoxSage（GitHub 分发、开发者向）契合
+- **被否决的替代方案**：
+  - **在 VoxAI 啃纯 Swift 本地 diarization**（sherpa-onnx / CoreML pyannote）：最难，且与 VoxAI 极简定位 + 上架隐私招牌冲突，重复造 VoxSage 已有的轮子
+  - **在 VoxAI 走云 diarization API**（Deepgram / Speechmatics / Azure）：成熟且支持实时，但上传他人对话有法务/隐私雷 + `network.*` entitlements / 出口合规税 + 偏离 VoxAI 隐私定位
+  - **现在就上架 / 商业化**：Rebecca 明确先本地自用验证价值再谈
+- **影响范围**：
+  - VoxAI：ROADMAP 的"v1.1 会议模式"标注移交（DR-028）；VoxAI 保持 ASR-only，v1.x 候选回到轻量项（TTS DR-021 / 语言切换 DR-023 / 自动 paste DR-024）
+  - VoxSage：成为这条线的家 —— 三块工作（实时多人 diarization / MCP server `list_meetings`·`get_meeting`·`get_live_transcript` / Claude 旁听 agent loop），开发在 VoxSage 目录新窗口推进
+  - 跨项目：开发转场 VoxSage，VoxAI 此线冻结
+- **触发场景**：2026-06-25 Rebecca brainstorm v1.x 新功能，提出"AI 实时旁听谈话做事实判断"场景并明确要多人精确区分 + AI 自动旁听。Sage 分析后指出该重场景与 VoxAI 上架定位冲突、而 VoxSage 已有 pyannote 栈 + 无 sandbox + 本地隐私干净，更适合做家。Rebecca 拍板"先放 VoxSage，本地跑顺再谈商业化"
+
+---
+
 ### 2026-05-05 — ASC App 名称改为"VoxAI - 用嘴编程"（DR-027）
 
 - **决定**：App Store Connect 上 macOS 平台的 App 名称（即 App Store 显示标题）从原计划 `VoxAI`（5 字符）改为 `VoxAI - 用嘴编程`（18 字符）。Bundle ID `com.ethanys.voxai`、GitHub 仓库名 `VoxAI`、应用内 UI（CFBundleName、菜单栏、浮窗标题、Logo）、品牌资产（README、privacy.html、社交链接）**全部不变**——这次改名仅限 ASC 一个字段。

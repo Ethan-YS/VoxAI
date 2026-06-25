@@ -160,11 +160,15 @@
 
 ## v1.x / v2 路线图
 
-### v1.1 — 会议模式（v1.0 上架后启动，~2 周）
+### v1.1 — ~~会议模式~~ → 移交 VoxSage（2026-06-25，DR-028）
 
+> **这条线不在 VoxAI 做了。** 2026-06-25 Rebecca 提出"和别人谈事时 AI 实时旁听 + 多人 diarization + 判断靠不靠谱"场景，决定移交 VoxSage 旧仓——VoxSage 已有 whisperx+pyannote diarization 栈（`src/stt/diarize.py`）、无 App Sandbox 限制、本地分离隐私干净。详见 DECISIONS **DR-028**。
+> VoxAI 的 v1.x 候选回到轻量项：语言切换 UI（DR-023）/ TTS（DR-021）/ 自动 paste（DR-024），等真实用户反馈再启动。
+
+**原会议模式设计**（移交 VoxSage 时可参考）：
 - WhisperKit 集成（Intel/Apple Silicon 双适配，模型分级）
 - 会议管理 UI（沿用 VoxSage 的 ContentView 设计）
-- 离线 ASR + 简单的说话人区分（v1.1 不做声纹分离，只做"说话人 1/2"基于停顿启发）
+- 离线 ASR + 简单的说话人区分
 - `list_meetings` / `get_meeting` MCP 工具回归
 
 ### v2.0 — TBD

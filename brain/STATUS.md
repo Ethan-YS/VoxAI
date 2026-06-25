@@ -17,6 +17,7 @@
 - **Bundle ID**：`com.ethanys.voxai`
 - **状态**：可供分发 / Ready for Distribution（已通过审核 + 已在 App Store 索引到）
 - **2026-06-24**：Rebecca 启动 v1.x 增功能。Sage 已通读 6 个 Swift 源文件 + 决策/架构/sandbox/风险/路线图，掌握全貌，待定功能范围
+- **2026-06-25**：定下首个 v1.x 大方向——"AI 实时旁听谈话 + 多人 diarization + 事实判断"场景**移交 VoxSage**（DR-028；VoxSage 已有 pyannote 栈 + 无 sandbox + 本地隐私干净）。开发转场 VoxSage，**VoxAI 此线冻结**；本仓 v1.x 候选回到轻量项（语言切换 / TTS / 自动 paste）
 
 ## 下一步
 
