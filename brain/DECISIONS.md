@@ -37,6 +37,19 @@
 
 ---
 
+### 2026-06-25 — 修复 VoxSage 本地 remote 撞 VoxAI（DR-026 后遗症）（DR-029）
+
+- **决定**：把 VoxSage 本地仓的 origin 从 `https://github.com/Ethan-YS/VoxAI.git` 改回 `https://github.com/Ethan-YS/VoxSage.git`（`git remote set-url`）。
+- **为什么**：DR-026 把旧 `Ethan-YS/VoxAI` 仓改名为 `Ethan-YS/VoxSage` 时，只改了 GitHub 远程名，**VoxSage 本地 clone 的 remote url 没跟着更新**。GitHub 改名后旧 url 自动重定向，push/fetch 一直正常 → 隐患潜伏一个多月没暴露。后果：本地 VoxSage 与本地 VoxAI 的 origin url **完全相同**（都是 `Ethan-YS/VoxAI.git`），Claude Code 桌面客户端按 git remote 认"项目身份"，把 VoxSage 误判成 VoxAI——选 VoxSage 文件夹开会话，worktree 却建到 `VoxAI/.claude/worktrees/`、状态栏显示 "VoxAI main"、Create PR 指向 VoxAI，换任何入口都跳回。改 url 不改 push 实际目标，完全可逆。
+- **被否决的替代方案**：
+  - **在客户端 GUI 里继续找正确入口**：已验证无效——remote 撞车是底层根因，GUI 操作盖不掉（Rebecca 试过派生 / 全局新建 / 重选文件夹都跳回 VoxAI）
+  - **手动清 `~/.claude.json` 的项目映射**：动客户端内部状态文件有风险；改 remote 是更干净的根因修复（客户端重新读 remote 即可）
+- **影响范围**：VoxSage 本地 `.git/config` 的 origin url；解除 Claude Code 客户端对 VoxSage / VoxAI 的项目身份混淆（以后两项目在客户端都能正确识别）。**push/fetch 目标不变**（GitHub 上仍是同一个 `Ethan-YS/VoxSage` 仓）。
+- **触发场景**：2026-06-25 Rebecca 要在 VoxSage 目录开新会话做会议模式（DR-028），客户端反复把 VoxSage 会话归到 VoxAI。Sage 从 VoxAI 会话用 `git remote -v` 对比两仓，发现 origin url 撞车，定位为 DR-026 改名时未更新本地 remote 的后遗症。
+- **通用教训**：GitHub 仓库改名后，本地 clone 的 remote url **不会自动更新**（靠 GitHub 重定向继续工作，隐患不显形）。多个本地仓若 remote url 字符串相同，会让"按 remote 认项目身份"的工具（如 Claude Code 桌面客户端）混淆。**改名后应立即 `git remote set-url origin <新地址>`。**
+
+---
+
 ### 2026-06-25 — 会议模式 / 实时多人 diarization / MCP 旁听 这条 v1.x 线移交 VoxSage（DR-028）
 
 - **决定**：Rebecca 设想的"和别人面对面谈事时，AI 实时旁听 + 多人说话人区分（谁说了什么）+ 判断对方说的靠不靠谱"这条功能线，**不在 VoxAI（App Store 版）做，移交 VoxSage 旧仓**。VoxAI 保持 v1.0 ASR-only 定位，ROADMAP 里原列的"v1.1 = 会议模式"从 VoxAI 路线移除。先在 VoxSage 本地跑顺、自用验证价值，再谈商业化/上架。
