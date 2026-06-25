@@ -10,25 +10,21 @@
 
 ## 现在在做什么
 
-**v1.0 已上架 Mac App Store** 🎉（2026-05-06）
+**v1.0 已上架 Mac App Store** 🎉（2026-05-06）→ **进入 v1.x 迭代规划**（2026-06-24）
 
 - **产品页**：https://apps.apple.com/cn/app/voxai-用嘴编程/id6766570591
 - **ASC App ID**：`6766570591`
 - **Bundle ID**：`com.ethanys.voxai`
 - **状态**：可供分发 / Ready for Distribution（已通过审核 + 已在 App Store 索引到）
+- **2026-06-24**：Rebecca 启动 v1.x 增功能。Sage 已通读 6 个 Swift 源文件 + 决策/架构/sandbox/风险/路线图，掌握全貌，待定功能范围
 
 ## 下一步
 
-跑完 [`ASC_SUBMISSION_DRAFTS.md`](topics/operations/ASC_SUBMISSION_DRAFTS.md) §14 GitHub 收尾的剩余事项：
+**定 v1.x 功能范围**（Rebecca 主导）。候选功能池见 [`DECISIONS.md`](DECISIONS.md) DR-021~024（v1.0 砍掉的 TTS / MCP / 语言切换 / 自动 paste，每条都有"为什么砍 + v1.1 重启参考"）+ [`ROADMAP.md`](topics/planning/ROADMAP.md)（原定 v1.1 = 会议模式）。AppSettings 已为 TTS / 语言 / Cloud 字段留底，数据层重启成本低。选定方向后走 brainstorm → 排期 → 实现。
 
-- ✅ 14.1 GitHub Release v1.0 — Sage 创建
-- ✅ 14.2 改 `Ethan-YS/VoxAI` repo homepage URL 指向 ASC — Sage 改
-- ✅ 14.5 README 加 Mac App Store badge — Sage 改
-- ⏳ 14.3 Social preview image（可选） — Rebecca 看意愿
-- ⏳ 14.4 GitHub Discussions（v1.0 不推荐开）— Rebecca 看意愿
-- ⏳ push 那一波 ahead commits 到 origin/main — 等所有改动 commit 完后 Sage 一次性 push
-
-**v1.x 范围**：见 [`topics/planning/ROADMAP.md`](topics/planning/ROADMAP.md)。等真实用户反馈再启动。
+**§14 GitHub 收尾**（剩两个可选项，等 Rebecca 意愿）：
+- ✅ 14.1 Release / 14.2 repo homepage / 14.5 README badge — 已完成 + push
+- ⏳ 14.3 Social preview image / 14.4 GitHub Discussions（不推荐开）
 
 ## 卡点 / 待确认
 
@@ -36,9 +32,7 @@
 
 ## 未提交的改动
 
-`brain/STATUS.md` / `brain/HANDOFF.md`（已归档旧版到 handoffs/） / `brain/topics/operations/ASC_SUBMISSION_DRAFTS.md` / `README.md`（加 App Store badge + 替换"即将上线"占位 + 隐私政策 live URL）。
-
-ahead origin/main 5 commits + 这次改动 → 准备打包成 §14 GitHub 收尾的一组 commit 一波 push。
+无。上架收尾那一波已全部 commit + push（最新 `c69fe98` Phase 4.6 + tag `v1.0`，本地 == origin）。本次 STATUS 校准 commit 即将 push。
 
 ## 最近一次会话做了什么
 
